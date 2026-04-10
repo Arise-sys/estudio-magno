@@ -174,6 +174,21 @@ body {
                 <button class="btn-magno" style="width: 40px;" onclick="pagSig()">▶</button>
             </div>
 
+<div style="margin: 15px 0; padding: 10px; border: 2px solid #000; background: #f9f9f9;">
+    <label style="cursor:pointer; margin-bottom: 8px;">
+        <input type="checkbox" id="optimizador" onchange="renderizar()"> 
+        ✨ Optimizar para impresión
+    </label>
+    <label style="cursor:pointer; margin-bottom: 8px;">
+        <input type="checkbox" id="modo-calido" onchange="renderizar()"> 
+        🔥 Tono Cálido
+    </label>
+    <label style="cursor:pointer;">
+        <input type="checkbox" id="modo-negativo" onchange="renderizar()"> 
+        🌓 Modo Negativo (Ahorro tinta)
+    </label>
+</div>
+
             <canvas id="canvas-preview"></canvas>
             <button class="btn-magno" onclick="descargar()">DESCARGAR HOJA</button>
         </div>
@@ -321,69 +336,91 @@ body {
 
 function renderizar() {
     const hoja = document.getElementById('tipo-hoja').value;
-    const config = MEDIDAS[hoja][document.getElementById('medida-foto').value];
+    const medIdx = document.getElementById('medida-foto').value;
+    const config = MEDIDAS[hoja][medIdx];
     const fill = document.getElementById('rellenar').checked;
     
-    // --- ESTAS LÍNEAS SE HABÍAN PERDIDO Y SON VITALES ---
-    // Definimos el tamaño del lienzo según el tipo de hoja
+    // 1. Configuración del lienzo
     canvas.width = (hoja === 'A4') ? 2480 : 1240; 
     canvas.height = (hoja === 'A4') ? 3508 : 1748;
     
-    // Limpiamos el fondo (blanco)
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // ---------------------------------------------------
 
-    const f = 118.11; // Factor de conversión cm a píxeles (300 DPI)
-
-    // LÓGICA DE MÁRGENES DINÁMICOS:
+    const f = 118.11; // 300 DPI
     const gap = config.mI ? (config.mI * f) : 40;
-
     const porHoja = config.c * config.r;
-    document.getElementById('p-tot').textContent = Math.ceil(imagenes.length / porHoja) || 1;
+
+    // 2. Cálculo de páginas
+    const esCarnetA6 = (hoja === 'A6');
+    const totalPaginasCalculadas = esCarnetA6 ? 1 : Math.ceil(imagenes.length / porHoja);
+    
+    document.getElementById('p-tot').textContent = totalPaginasCalculadas || 1;
     document.getElementById('p-act').textContent = pagIdx + 1;
 
     if (imagenes.length === 0) return;
 
+    // 3. Posicionamiento de la grilla
     const gridW = (config.c * config.w * f) + (config.c - 1) * gap;
     const gridH = (config.r * config.h * f) + (config.r - 1) * gap;
-
-    // Si tiene mE (Margen Externo), lo usa. Si no, centra.
     const startX = config.mE ? (config.mE * f) : (canvas.width - gridW) / 2;
     const startY = config.mE ? (config.mE * f) : (canvas.height - gridH) / 2;
 
+    // 4. BUCLE DE DIBUJO (Aquí estaba el error)
     for(let i=0; i < porHoja; i++) {
-        let imgIdx = (pagIdx * porHoja) + i;
-        let img = imagenes[imgIdx];
-        if(!img) break;
+        let img;
+        if (esCarnetA6) {
+            // Repite siempre la primera imagen en todos los huecos
+            img = imagenes[0];
+        } else {
+            // Busca la imagen correspondiente al hueco y página actual
+            let imgIdx = (pagIdx * porHoja) + i;
+            img = imagenes[imgIdx];
+        }
 
-        const x = startX + (i % config.c) * (config.w * f + gap);
-        const y = startY + Math.floor(i / config.c) * (config.h * f + gap);
+        if(!img) break; // Si no hay más fotos, deja de dibujar
+
+        const col = i % config.c;
+        const fila = Math.floor(i / config.c);
+        const x = startX + col * (config.w * f + gap);
+        const y = startY + fila * (config.h * f + gap);
         const tw = config.w * f;
         const th = config.h * f;
 
-        ctx.save();
+        // --- APLICACIÓN DE FILTROS ---
+        let filtros = "";
+        if (document.getElementById('optimizador').checked) {
+            filtros += "brightness(1.25) contrast(1.1) saturate(1.15) ";
+        }
+        if (document.getElementById('modo-calido').checked) {
+            filtros += "sepia(0.4) brightness(1.2) "; 
+        }
+        if (document.getElementById('modo-negativo').checked) {
+            filtros += "grayscale(1) invert(1) ";
+        }
+        ctx.filter = filtros || "none";
+
+        // --- DIBUJO CON ROTACIÓN Y CLIPPING ---
+        ctx.save(); 
+        // Crear área de recorte para la foto
         ctx.beginPath();
         ctx.rect(x, y, tw, th);
         ctx.clip();
 
         let drawW = img.width, drawH = img.height, rotation = 0;
-        // Auto-rotación inteligente si la orientación no coincide
         if ((img.width > img.height) !== (tw > th)) {
             rotation = 90; drawW = img.height; drawH = img.width;
         }
 
         let ratio = fill ? Math.max(tw / drawW, th / drawH) : Math.min(tw / drawW, th / drawH);
+        
         ctx.translate(x + tw/2, y + th/2);
         if(rotation !== 0) ctx.rotate(Math.PI / 2);
-        ctx.drawImage(img, -(img.width * ratio)/2, -(img.height * ratio)/2, img.width * ratio, img.height * ratio);
-        ctx.restore();
 
-        /* Borde guía para el corte
-        ctx.strokeStyle = "#ccc";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, tw, th);
-        */
+        ctx.drawImage(img, -(img.width * ratio)/2, -(img.height * ratio)/2, img.width * ratio, img.height * ratio);
+        
+        ctx.restore(); 
+        ctx.filter = "none"; // Limpiar filtro para la siguiente foto
     }
 }
 
@@ -394,11 +431,40 @@ function renderizar() {
         if(pagIdx < Math.ceil(imagenes.length / (c.c*c.r)) - 1) { pagIdx++; renderizar(); } 
     }
 
-    function descargar() {
+    async function descargar() {
+    // Definimos las constantes necesarias para el cálculo
+    const hoja = document.getElementById('tipo-hoja').value;
+    const config = MEDIDAS[hoja][document.getElementById('medida-foto').value];
+    const porHoja = config.c * config.r;
+
+    // Aplicamos la lógica que mencionaste: 
+    // ¿Es A6? SI -> 1 página. NO -> Calcular según cantidad de fotos.
+    const totalPaginas = (hoja === 'A6') ? 1 : Math.ceil(imagenes.length / porHoja);
+
+    if (imagenes.length === 0) {
+        alert("No hay imágenes para descargar.");
+        return;
+    }
+
+    const confirmacion = confirm(`Se descargarán ${totalPaginas} hoja/s. ¿Continuar?`);
+    if (!confirmacion) return;
+
+    const originalPagIdx = pagIdx;
+
+    for (let i = 0; i < totalPaginas; i++) {
+        pagIdx = i;
+        renderizar();
+
         const a = document.createElement('a');
-        a.download = `MAGNO_FOTO_PAG_${pagIdx+1}.jpg`;
+        a.download = `HOJA_${i + 1}.jpg`;
         a.href = canvas.toDataURL("image/jpeg", 0.9);
         a.click();
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    pagIdx = originalPagIdx;
+    renderizar();
     }
 
     cambiarConfig();
