@@ -7,107 +7,314 @@
     <title>ESTUDIO MAGNO | Producción</title>
     <style>
         :root { --fuente-mono: "SFMono-Regular", Consolas, monospace; }
-body { 
-    margin: 0; 
-    padding: 0; 
-    background-color: #ffffff; 
-    display: flex; 
-    flex-direction: column; 
-    height: 100vh; 
-    
-    /* BLOQUEO DE ANCHO PARA EVITAR SALTOS */
-    overflow-y: scroll; 
-    overflow-x: hidden; 
-    width: 100vw; 
-
-    font-family: sans-serif;
-    background-image: linear-gradient(rgba(230, 230, 230, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(230, 230, 230, 0.5) 1px, transparent 1px); 
-    background-size: 30px 30px; 
+        @font-face {
+    font-family: 'Departure Mono';
+    src: url('ruta/a/tu/fuente/DepartureMono-Regular.woff2') format('woff2');
+    /* O el formato que tengas (.ttf, .otf) */
 }
         
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: white; border-bottom: 2px solid #000; z-index: 10; font-family: var(--fuente-mono); }
-        
-        /* Ajuste vital para la marquesina */
-.contenedor-bucle { 
-    width: 100%; 
-    background: #000; 
-    overflow: hidden; 
-    padding: 10px 0; 
-    display: flex; 
-    flex-shrink: 0; /* Esto impide que la marquesina se aplaste */
-}
-        .texto-movil { display: flex; animation: desplaza 30s linear infinite; font-family: var(--fuente-mono); color: #fff; text-transform: uppercase; white-space: nowrap; }
-        @keyframes desplaza { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #ffffff; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            overflow-y: scroll; 
+            overflow-x: hidden; 
+            width: 100vw; 
+            font-family: sans-serif;
+            background-image: linear-gradient(rgba(230, 230, 230, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(230, 230, 230, 0.5) 1px, transparent 1px); 
+            background-size: 30px 30px; 
+        }
 
-        /* Navegación por Pestañas */
-        /* Navegación por Pestañas */
-        nav { display: flex; justify-content: center; background: none; border-bottom: none; }
-        .tab-btn { padding: 15px 30px; border: none; background: none; cursor: pointer; font-family: var(--fuente-mono); font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 25px; 
+            background: white; 
+            border-bottom: 2px solid #000; 
+            z-index: 10; 
+            font-family: var(--fuente-mono); 
+        }
+
+        .logo-link {
+            text-decoration: none; /* Quita el subrayado */
+            color: inherit;        /* Mantiene el color negro original */
+            cursor: pointer;      /* Cambia el cursor a la "manito" al pasar el mouse */
+        }
+
+        .logo-link:hover {
+        opacity: 0.7;          /* Un pequeño efecto visual al tocarlo */
+        }
+
+        /* Nueva Marquesina Profesional */
+        .contenedor-bucle { 
+            --gap: 3rem; 
+            width: 100%; 
+            background: #000; 
+            overflow: hidden; 
+            padding: 10px 0; 
+            display: flex; 
+            user-select: none;
+            gap: var(--gap);
+        }
+
+        .texto-movil { 
+            flex-shrink: 0;
+            display: flex; 
+            justify-content: flex-start;
+            min-width: 100%;
+            gap: var(--gap);
+            animation: desplaza 30s linear infinite; 
+            font-family: var(--fuente-mono); 
+            color: #fff; 
+            text-transform: uppercase; 
+            white-space: nowrap; 
+        }
+
+        @keyframes desplaza { 
+            from { transform: translateX(0); } 
+            to { transform: translateX(calc(-100% - var(--gap))); } 
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .texto-movil { animation-play-state: paused; }
+        }
+
+        nav { display: flex; justify-content: center; background: none; }
+        
+        .tab-btn { 
+            padding: 15px 30px; 
+            border: none; 
+            background: none; 
+            cursor: pointer; 
+            font-family: var(--fuente-mono); 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            transition: 0.3s; 
+        }
+        
         .tab-btn:hover { background: #e0e0e0; }
         .tab-btn.active { background: #000; color: #fff; }
 
         main { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; /* Centrado respecto al body fijo */
-    width: 100%;
-    overflow-y: visible; 
-}
-        
-/* Contenedores de Secciones (Volver al centrado normal) */
-.seccion { 
-    display: none; 
-    width: 100%; 
-    justify-content: center; 
-    align-items: flex-start; 
-}
-
-.seccion.active { 
-    display: flex; 
-}
-
-.panel { 
-    background: #fff; 
-    padding: 25px; 
-    border: 2px solid #000; 
-    width: 450px; 
-    box-shadow: 10px 10px 0 #e0e0e0; 
-    font-family: var(--fuente-mono);
-    margin-top: 20px;
-}
-        h3 { border-bottom: 3px solid #000; padding-bottom: 5px; margin-bottom: 15px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; }
-        select, input[type="number"], input[type="file"] { width: 100%; padding: 8px; margin-bottom: 15px; border: 2px solid #000; box-sizing: border-box; font-family: var(--fuente-mono); }
-        
-        /* Estilos Calculadora */
-        .resultado-calc { background: #000; color: #fff; padding: 15px; margin-top: 15px; }
-        .linea-res { display: flex; justify-content: space-between; margin-bottom: 5px; }
-
-        /* Estilos Fotos */
-        #canvas-preview { border: 1px solid #000; width: 100%; background: #f0f0f0; margin-top: 10px; }
-        .btn-magno { background: #000; color: #fff; padding: 12px; border: none; cursor: pointer; width: 100%; font-weight: bold; text-transform: uppercase; margin-top: 10px; font-family: var(--fuente-mono); }
-        .controles-pag { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; }
-        
-        /* Estilo para el contenedor del input de archivo "fake" */
-        .fake-input-container {
-            margin-bottom: 15px;
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%;
+            padding-bottom: 50px;
         }
-    </style>
+
+        .seccion { 
+            display: none; 
+            width: 100%; 
+            justify-content: center; 
+        }
+
+        .seccion.active { display: flex; }
+
+        .panel { 
+            background: #fff; 
+            padding: 25px; 
+            border: 2px solid #000; 
+            width: 450px; 
+            box-shadow: 10px 10px 0 #e0e0e0; 
+            font-family: var(--fuente-mono); 
+            margin-top: 20px; 
+            margin-bottom: 40px; 
+            box-sizing: border-box; 
+        }
+
+        h3 { border-bottom: 3px solid #000; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 0.9rem; }
+        select, input[type="number"] { width: 100%; padding: 8px; border: 2px solid #000; box-sizing: border-box; font-family: var(--fuente-mono); height: 42px; }
+        
+        .contenedor-nombre-pdf {
+            margin: 15px 0;
+            font-family: var(--fuente-mono);
+            font-size: 0.9rem;
+            color: #000;
+            line-height: 1.2rem;
+            height: 2.4rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-all;
+        }
+
+        .resultado-calc { background: #000; color: #fff; padding: 20px; margin-top: 15px; }
+        #total-precio { font-size: 3rem; font-weight: bold; }
+        .btn-magno { background: #000; color: #fff; padding: 12px; border: none; cursor: pointer; width: 100%; font-weight: bold; text-transform: uppercase; margin-top: 10px; font-family: var(--fuente-mono); }
+        
+        /* Estilos Fotos */
+        .fila-medida { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px; width: 100%; }
+        .col-medida { flex: 1; display: flex; flex-direction: column; }
+        .col-contador { width: 130px; display: none; flex-direction: column; }
+        .stepper { display: flex; border: 2px solid #000; height: 42px; background: #fff; }
+        .stepper button { width: 40px; border: none; background: #000; color: #fff; font-size: 1.2rem; cursor: pointer; }
+        .stepper input { flex: 1; border: none; text-align: center; font-weight: bold; width: 100%; outline: none; }
+        #canvas-preview { border: 1px solid #000; width: 100%; background: #f0f0f0; margin-top: 10px; }
+        .controles-pag { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0; }
+        .opcion-check { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-bottom: 8px; }
+
+
+        /* Agregá esto al final de tu <style> */
+body::after {
+    content: "Preload Font";
+    font-family: 'Departure Mono';
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* 1. Fondo general y Header en Negro */
+body.tema-negativo, 
+body.tema-negativo header {
+    background-color: #202020 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+/* 2. El Panel principal se vuelve negro con bordes blancos */
+body.tema-negativo .panel {
+    background-color: #303030 !important;
+    border-color: #fff !important;
+    box-shadow: 10px 10px 0 #333 !important;
+}
+
+/* 3. Textos y etiquetas en blanco para que se lean en el panel negro */
+body.tema-negativo h3, 
+body.tema-negativo label, 
+body.tema-negativo .contenedor-nombre-pdf,
+body.tema-negativo .tab-btn:not(.active) {
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+/* 4. LA CAJA DE RESULTADOS: El contenedor pequeño se vuelve blanco entero */
+body.tema-negativo .resultado-calc {
+    background-color: #fff !important; /* Toda la caja se vuelve blanca */
+    color: #252525 !important;            /* El texto de adentro se vuelve negro */
+    border: 2px solid #1d1d1d !important;
+}
+
+/* Forzamos a que los números y etiquetas internas hereden el negro */
+body.tema-negativo .resultado-calc span, 
+body.tema-negativo .resultado-calc div {
+    color: #313131 !important;
+}
+
+body.tema-negativo .resultado-calc hr {
+    border-color: #292929 !important; /* La línea divisoria ahora es negra */
+}
+
+/* 5. Marcos de Simple/Doble y Anillado en Blanco */
+body.tema-negativo div[style*="border"], 
+body.tema-negativo label[style*="border"] {
+    border-color: #fff !important;
+}
+
+/* 6. Inputs y Selectores con fondo oscuro */
+body.tema-negativo input[type="number"], 
+body.tema-negativo select {
+    background: #222 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+body.tema-negativo .btn-magno { background-color: #fff !important; color: #292929 !important; }
+body.tema-negativo .contenedor-bucle { background-color: #fff !important; }
+body.tema-negativo .texto-movil { color: #1d1d1d !important; }
+/* La pestaña activa: Fondo blanco, texto negro */
+body.tema-negativo .tab-btn.active { 
+    background-color: #fff !important; 
+    color: #1b1b1b !important; 
+}
+
+/* La pestaña inactiva: Texto blanco (para que no se pierda en el fondo oscuro) */
+body.tema-negativo .tab-btn { 
+    color: #fff !important; 
+}
+
+body.tema-negativo .controles-pag .btn-magno { background-color: #fff !important; color: #000 !important; }
+body.tema-negativo .btn-magno, 
+body.tema-negativo .stepper button { background-color: #fff !important; color: #000 !important; }
+
+body.tema-negativo .stepper { border-color: #fff !important; }
+body.tema-negativo .stepper input { background: #222 !important; color: #fff !important; }
+
+/* CSS para la caja de texto del cliente */
+#nombre-cliente {
+    width: 100%; /* Ocupa todo el ancho */
+    padding: 15px; /* Más espacio interno */
+    font-size: 24px; /* Fuente grande y legible */
+    font-weight: bold; /* Texto en negrita */
+    border: 2px solid #ccc; /* Borde más definido */
+    border-radius: 8px; /* Bordes redondeados */
+    box-sizing: border-box; /* Asegura que el padding no agrande la caja */
+    background-color: #fff; /* Fondo blanco por defecto */
+    color: #000; /* Texto negro por defecto */
+}
+
+/* Ajuste para el Modo Noche */
+body.tema-negativo #nombre-cliente {
+    background-color: #333; /* Fondo oscuro */
+    color: #fff; /* Texto blanco */
+    border-color: #555; /* Borde oscuro */
+}
+@media print {
+    @page {
+        size: auto; /* O podés poner 'A4' o 'A3' fijo */
+        margin: 0mm;
+    }
+    body {
+        margin: 0;
+    }
+    /* Ocultamos los botones para que no salgan en el ticket o la hoja de fotos */
+    .no-print {
+        display: none !important;
+    }
+}
+@media print {
+    /* Ocultamos todo lo que no sea el panel de cotización */
+    header, nav, .contenedor-bucle, .btn-magno, #subir-pdf, #btn-tema {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        background-image: none !important;
+    }
+
+    .panel {
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+}
+</style>
 </head>
 <body>
 
 <header>
-    <div><strong>ESTUDIO MAGNO</strong></div>
+    <div>
+        <a href="index.html" class="logo-link"><strong>ESTUDIO MAGNO</strong></a>
+        <button id="btn-tema" onclick="alternarTema()" style="margin-left: 15px; cursor: pointer; background: #000; color: #fff; border: 1px solid #000; font-family: var(--fuente-mono); font-size: 0.7rem; padding: 2px 8px;">MODO NOCHE</button>
+    </div>
     <div id="fecha"></div>
 </header>
 
-<div class="contenedor-bucle">
+<div class="contenedor-bucle" id="marquesina-container">
     <div class="texto-movil" id="marquesina"></div>
 </div>
 
 <nav>
-    <button class="tab-btn active" onclick="cambiarTab('cotizacion', this)">Sistema de Cotización</button>
+    <button class="tab-btn active" onclick="cambiarTab('cotizacion', this)">Cotización</button>
     <button class="tab-btn" onclick="cambiarTab('fotos', this)">Armado de Foto</button>
 </nav>
 
@@ -115,214 +322,488 @@ body {
     <div id="seccion-cotizacion" class="seccion active">
         <div class="panel">
             <h3>SISTEMA DE COTIZACIÓN</h3>
-            <label>CARGAR PDF:</label>
-            <div style="position: relative; margin-bottom: 15px;">
-            <button type="button" class="btn-magno" id="btn-pdf-fake" style="margin-top: 0; width: 100%;">SELECCIONAR ARCHIVO PDF</button>
-            <span id="pdf-status" style="display: block; font-size: 0.9rem; margin-top: 5px; color: #666; font-family: var(--fuente-mono);">Sin archivo seleccionado</span>
+            <button type="button" class="btn-magno" onclick="document.getElementById('subir-pdf').click()">SELECCIONAR PDF</button>
             <input type="file" id="subir-pdf" accept="application/pdf" style="display: none;">
-            </div>
+            <div id="nombre-archivo-pdf" class="contenedor-nombre-pdf">Sin archivo seleccionado</div>
             
-            <label>PÁGINAS DEL ARCHIVO:</label>
-            <input type="number" id="num-paginas" value="0">
+<div class="fila-medida">
+    <div class="col-medida">
+        <label>PÁGINAS PDF:</label>
+        <input type="number" id="num-paginas" value="0" oninput="calcular()">
+    </div>
+    <div class="col-contador" style="display: flex;">
+        <label>PÁG. POR CARILLA:</label>
+        <div class="stepper">
+            <button type="button" onclick="pasoPaginaPorCarilla(-1)">-</button>
+            <input type="text" id="paginas-por-carilla" value="1" readonly>
+            <button type="button" onclick="pasoPaginaPorCarilla(1)">+</button>
+        </div>
+    </div>
+</div>
 
-            <div style="border: 2px solid #000; padding: 10px; margin-bottom: 15px; display: flex; justify-content: space-around;">
-                <label><input type="radio" name="tipo-faz" value="simple" checked onchange="calcular()"> SIMPLE FAZ</label>
-                <label><input type="radio" name="tipo-faz" value="doble" onchange="calcular()"> DOBLE FAZ</label>
+            <div style="border: 2px solid #000; padding: 10px; margin: 15px 0; display: flex; justify-content: space-around;">
+                <label><input type="radio" name="tipo-faz" value="simple" checked onchange="calcular()"> SIMPLE</label>
+                <label><input type="radio" name="tipo-faz" value="doble" onchange="calcular()"> DOBLE</label>
             </div>
-
-            <div style="border: 2px solid #000; padding: 10px; margin-bottom: 15px;">
-                <label style="cursor:pointer;"><input type="checkbox" id="con-anillado" onchange="calcular()"> ¿SOLICITAR ANILLADO?</label>
-            </div>
+<label style="border: 2px solid #000; padding: 10px; cursor:pointer;">
+    <input type="checkbox" id="con-anillado" onchange="calcular()" oninput="calcular()"> ¿ANILLADO?
+</label>            
+            <label>NOMBRE DEL CLIENTE / NOTAS:</label>
+            <input type="text" id="nombre-cliente" placeholder="Escribir nombre..." oninput="calcular()" style="margin-bottom: 10px; text-transform: uppercase;">
 
             <div class="resultado-calc">
-                <div class="linea-res">HOJAS FÍSICAS: <span id="total-hojas">0</span></div>
-                <div class="linea-res">PRECIO X HOJA: $<span id="precio-unidad">0</span></div>
-                <div class="linea-res">ANILLADO: $<span id="precio-anillado">0</span></div>
-                <hr style="border: 1px solid #fff;">
-                <div class="linea-res" style="font-size: 1.2rem; font-weight: bold;">TOTAL: $<span id="total-precio">0</span></div>
+                <div style="display: flex; justify-content: space-between;">HOJAS FÍSICAS: <span id="total-hojas">0</span></div>
+                <div style="display: flex; justify-content: space-between;">ANILLADO: $<span id="precio-anillado">0</span></div>
+                <hr style="border: 0.5px solid #fff; margin: 10px 0;">
+                <div style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold;">TOTAL: $<span id="total-precio">0</span></div>
             </div>
+
+            <button type="button" class="btn-magno" onclick="descargarTicket()" style="background: #050505;">DESCARGAR TICKET</button>
+
+<div style="margin-top: 15px;">
+    <button type="button" class="btn-magno" onclick="imprimirTicket()" style="width: 100%; background: #007bff; padding: 15px; font-weight: bold;">
+        🖨️ IMPRIMIR TICKET
+    </button>
+</div>
+
         </div>
     </div>
 
     <div id="seccion-fotos" class="seccion">
         <div class="panel">
             <h3>ARMADO DE FOTOS</h3>
+            <button type="button" class="btn-magno" onclick="document.getElementById('fotos-input').click()">CARGAR IMÁGENES</button>
+            <input type="file" id="fotos-input" accept="image/*" multiple style="display: none;">
 
-            <label>CARGAR JPG / PNG:</label>
-            <div class="fake-input-container" style="position: relative;">
-                <button type="button" class="btn-magno" id="btn-fotos-fake" style="margin-top: 0;">SELECCIONAR IMÁGENES</button>
-                <span id="fotos-status" style="display: block; font-size: 0.9rem; margin-top: 5px; color: #666;">Sin archivos seleccionados</span>
-                <input type="file" id="fotos-input" accept="image/*" multiple style="display: none;">
-            </div>
-
-            <label>TIPO DE HOJA:</label>
+            <label style="margin-top:15px;">TAMAÑO DE HOJA:</label>
             <select id="tipo-hoja" onchange="cambiarConfig()">
-                <option value="A4">A4 (21 x 29.7 cm)</option>
-                <option value="A6">A6 (10.5 x 14.8 cm)</option>
+                <option value="A3">A3</option>
+                <option value="A4" selected>A4</option>
+                <option value="A5">A5</option>
+                <option value="A6">A6</option>
+                <option value="LEGAL">Legal (Oficio)</option>
             </select>
             
-            <label>MEDIDA FOTO:</label>
-            <select id="medida-foto" onchange="renderizar()"></select>
-            
-            <label style="margin: 10px 0; cursor:pointer; display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="rellenar" onchange="renderizar()"> RELLENAR ESPACIO (SIN BORDES)
-            </label>
+            <div class="fila-medida">
+                <div class="col-medida">
+                    <label>MEDIDA FOTO:</label>
+                    <select id="medida-foto" onchange="gestionarInterfazEspecial()"></select>
+                </div>
+                <div class="col-contador" id="contenedor-contador">
+                    <label>FOTOS:</label>
+                    <div class="stepper">
+                        <button type="button" onclick="pasoContador(-1)">-</button>
+                        <input type="text" id="cant-especial" value="1" readonly>
+                        <button type="button" onclick="pasoContador(1)">+</button>
+                    </div>
+                </div>
+            </div>
+            <label class="opcion-check"><input type="checkbox" id="lineas-corte" onchange="renderizar()"> ✂️ MOSTRAR LÍNEAS DE CORTE</label>
+            <label class="opcion-check"><input type="checkbox" id="rellenar" onchange="renderizar()"> 🖼️ RELLENAR IMAGEN (SIN BORDES)</label>
+            <label class="opcion-check"><input type="checkbox" id="optimizador" onchange="renderizar()"> ✨ OPTIMIZAR (BRILLO/CONTRASTE)</label>
+            <label class="opcion-check"><input type="checkbox" id="modo-calido" onchange="renderizar()"> 🔥 MODO CÁLIDO</label>
+            <label class="opcion-check"><input type="checkbox" id="modo-negativo" onchange="renderizar()"> 🌓 MODO INVERTIDO (AHORRO)</label>
 
             <div class="controles-pag">
-                <button class="btn-magno" style="width: 40px;" onclick="pagAnt()">◀</button>
+                <button class="btn-magno" style="width: 45px; margin:0;" onclick="pagAnt()">◀</button>
                 <span>PÁG <span id="p-act">1</span> / <span id="p-tot">1</span></span>
-                <button class="btn-magno" style="width: 40px;" onclick="pagSig()">▶</button>
+                <button class="btn-magno" style="width: 45px; margin:0;" onclick="pagSig()">▶</button>
             </div>
-
-<div style="margin: 15px 0; padding: 10px; border: 2px solid #000; background: #f9f9f9;">
-    <label style="cursor:pointer; margin-bottom: 8px;">
-        <input type="checkbox" id="optimizador" onchange="renderizar()"> 
-        ✨ Optimizar para impresión
-    </label>
-    <label style="cursor:pointer; margin-bottom: 8px;">
-        <input type="checkbox" id="modo-calido" onchange="renderizar()"> 
-        🔥 Tono Cálido
-    </label>
-    <label style="cursor:pointer;">
-        <input type="checkbox" id="modo-negativo" onchange="renderizar()"> 
-        🌓 Modo Negativo (Ahorro tinta)
-    </label>
-</div>
 
             <canvas id="canvas-preview"></canvas>
             <button class="btn-magno" onclick="descargar()">DESCARGAR HOJA</button>
+<button class="btn-magno" onclick="imprimirHojas()" style="background: #007bff; margin-top: 10px;">
+    🖨️ IMPRIMIR HOJAS (VISTA PREVIA)
+</button>
         </div>
     </div>
 </main>
 
 <script>
-    // --- LÓGICA GENERAL UI ---
+    const DPI = 600;
+    const F = DPI / 2.54;
     document.getElementById('fecha').textContent = new Date().toLocaleDateString();
-    document.getElementById('marquesina').innerHTML = `<span>ORDEN — PRODUCCIÓN — ESTUDIO MAGNO — </span>`.repeat(10);
+
+// Definimos las partes por separado
+const textoPuro = "PRODUCCIÓN — ESTUDIO MAGNO";
+const glifo = "|"; // Aquí va tu separador o glifo puro
+
+// Creamos la secuencia: Texto + Glifo + Texto + Glifo...
+// Usamos un array y join para que queden como elementos hermanos
+const pieza = `<span>${textoPuro}</span><span>${glifo}</span>`;
+const contenidoFinal = pieza.repeat(15); 
+
+document.getElementById('marquesina').parentElement.innerHTML = `
+    <div class="texto-movil">${contenidoFinal}</div>
+    <div class="texto-movil" aria-hidden="true">${contenidoFinal}</div>
+`;
+    // Configuración PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // Manejo de PDF
+document.getElementById('subir-pdf').onchange = function(e) {
+    const file = e.target.files[0];
+    const contenedorNombre = document.getElementById('nombre-archivo-pdf');
+    if (file && file.type === "application/pdf") {
+        contenedorNombre.textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = function() {
+            const typedarray = new Uint8Array(this.result);
+            pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                // Actualizamos el número de páginas
+                document.getElementById('num-paginas').value = pdf.numPages;
+                
+                // Forzamos el cálculo dos veces: una inmediata y otra tras un micro-segundo
+                // Esto asegura que el navegador haya "asimilado" el número nuevo.
+                calcular();
+                setTimeout(calcular, 100); 
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+};
+
+function calcular() {
+    const paginasPDF = parseInt(document.getElementById('num-paginas').value) || 0;
+    const paginasPorCarilla = parseInt(document.getElementById('paginas-por-carilla').value) || 1;
+    const esDoble = document.querySelector('input[name="tipo-faz"]:checked').value === 'doble';
+    const requiereAnillado = document.getElementById('con-anillado').checked;
+    
+    let carillasTotales = Math.ceil(paginasPDF / paginasPorCarilla);
+    let hojas = esDoble ? Math.ceil(carillasTotales / 2) : carillasTotales;
+
+    // --- LISTA DE PRECIOS FOTOCOPIAS ---
+    const ESCALA_SIMPLE = [
+        { hasta: 250, precio: 100 },
+        { hasta: 400, precio: 90 },
+        { hasta: Infinity, precio: 80 }
+    ];
+
+    const ESCALA_DOBLE = [
+        { hasta: 70, precio: 190 },
+        { hasta: 200, precio: 160 },
+        { hasta: Infinity, precio: 150 }
+    ];
+
+    const escala = esDoble ? ESCALA_DOBLE : ESCALA_SIMPLE;
+    let rangoEncontrado = escala.find(r => hojas <= r.hasta) || escala[escala.length - 1];
+    let precioHoja = rangoEncontrado.precio;
+
+    // --- LISTA DE ESPIRALES (TABLA UNIFICADA) ---
+    let costoAnillado = 0;
+    let etiquetaEspiral = "";
+    
+    const TABLA_ESPIRAL = [
+        { hasta: 48, m: "7-9mm", p: 1300 },
+        { hasta: 83, m: "12-14mm", p: 1500 },
+        { hasta: 116, m: "17-20mm", p: 1800 },
+        { hasta: 155, m: "23-25mm", p: 2000 },
+        { hasta: 245, m: "29-33mm", p: 2700 },
+        { hasta: 345, m: "36-40mm", p: 3300 },
+        { hasta: 445, m: "45-50mm", p: 4500 } 
+        // No agregamos más filas para que el .find() devuelva 'undefined' si supera 445
+    ];
+
+    if (requiereAnillado && hojas > 0) {
+        let espiral = TABLA_ESPIRAL.find(e => hojas <= e.hasta);
+        
+        if (espiral) {
+            etiquetaEspiral = espiral.m;
+            costoAnillado = espiral.p;
+        } else {
+            // SI SUPERA LAS 445 HOJAS:
+            etiquetaEspiral = "EXCEDE LÍMITE (Máx 445h)";
+            costoAnillado = 0; // El precio vuelve a cero porque no se puede hacer
+        }
+    }
+
+    // --- ACTUALIZACIÓN DE INTERFAZ ---
+    document.getElementById('total-hojas').textContent = hojas;
+    
+    // Mostramos el mensaje de error o el precio
+    document.getElementById('precio-anillado').textContent = costoAnillado > 0 
+        ? `${etiquetaEspiral} — $${costoAnillado}` 
+        : (requiereAnillado && hojas > 445 ? etiquetaEspiral : "$0");
+    
+    const subtotal = (hojas * precioHoja) + costoAnillado;
+    const totalRedondeado = Math.ceil(subtotal / 100) * 100;
+    
+    document.getElementById('total-precio').textContent = totalRedondeado.toLocaleString('es-AR');
+}
+
+
+function pasoPaginaPorCarilla(delta) {
+    const input = document.getElementById('paginas-por-carilla');
+    let v = parseInt(input.value);
+    
+    // Si es 1 y sube, va a 2. Si es 2 y baja, va a 1.
+    // Para el resto, se mueve de a 2 unidades.
+    let next;
+    if (v === 1 && delta > 0) {
+        next = 2;
+    } else if (v === 2 && delta < 0) {
+        next = 1;
+    } else {
+        next = v + (delta * 2);
+    }
+
+    // Límites de seguridad
+    if (next < 1) next = 1; 
+    if (next > 6) next = 6;
+    
+    // Validación final para evitar el 3 y el 5 si alguien escribe manual
+    if (next === 3) next = (delta > 0) ? 4 : 2;
+    if (next === 5) next = (delta > 0) ? 6 : 4;
+
+    input.value = next;
+    calcular(); 
+}
+
+function descargarTicket() {
+    const ticketCanvas = document.createElement('canvas');
+    const tCtx = ticketCanvas.getContext('2d');
+    ticketCanvas.width = 400;
+    ticketCanvas.height = 550;
+
+    tCtx.fillStyle = "#fff";
+    tCtx.fillRect(0, 0, ticketCanvas.width, ticketCanvas.height);
+    tCtx.fillStyle = "#000";
+    tCtx.strokeStyle = "#000";
+    tCtx.lineWidth = 2;
+    tCtx.strokeRect(10, 10, 380, 530);
+
+    const cliente = document.getElementById('nombre-cliente').value || "________________";
+    const paginasPDF = document.getElementById('num-paginas').value || 0;
+    const pByP = parseInt(document.getElementById('paginas-por-carilla').value) || 1;
+    const faz = document.querySelector('input[name="tipo-faz"]:checked').value.toUpperCase();
+    const total = document.getElementById('total-precio').textContent;
+    const fecha = new Date().toLocaleDateString();
+    
+    // Lógica inteligente para el texto de anillado en el ticket
+    const requiereAnillado = document.getElementById('con-anillado').checked;
+    const hojasFisicas = parseInt(document.getElementById('total-hojas').textContent) || 0;
+    let textoAnillado = "NO";
+    
+    if (requiereAnillado) {
+        if (hojasFisicas > 445) {
+            textoAnillado = "EXCEDE LÍMITE";
+        } else {
+            textoAnillado = "SÍ";
+        }
+    }
+
+    tCtx.font = "bold 24px monospace";
+    tCtx.fillText("ESTUDIO MAGNO", 110, 50);
+    tCtx.font = "16px monospace";
+    tCtx.fillText("---------------------------", 40, 70);
+    tCtx.fillText(`FECHA: ${fecha}`, 40, 100);
+    tCtx.font = "bold 22px monospace";
+    tCtx.fillText(`CLIENTE: ${cliente.substring(0, 20)}`, 40, 150);
+    tCtx.font = "18px monospace";
+    tCtx.fillText(`PÁGINAS PDF: ${paginasPDF}`, 40, 200);
+    tCtx.fillText(`MODO: ${pByP > 1 ? 'APAISADO ('+pByP+'p)' : 'NORMAL'}`, 40, 230);
+    tCtx.fillText(`TIPO: ${faz}`, 40, 260);
+    tCtx.fillText(`ANILLADO: ${textoAnillado}`, 40, 290); // Usamos la variable inteligente
+    tCtx.font = "bold 32px monospace";
+    tCtx.fillText(`TOTAL: $${total}`, 40, 360);
+    tCtx.font = "14px monospace";
+    tCtx.fillText("GRACIAS POR SU COMPRA", 100, 500);
+
+    const link = document.createElement('a');
+    link.download = `TICKET_${cliente.replace(/\s/g, '_')}.png`;
+    link.href = ticketCanvas.toDataURL("image/png");
+    link.click();
+}
+
+function imprimirTicket() {
+    const ticketCanvas = document.createElement('canvas');
+    const tCtx = ticketCanvas.getContext('2d');
+    
+    // Desactivamos suavizado para mantener el estilo Pixel Art / Mono
+    tCtx.imageSmoothingEnabled = false;
+    tCtx.webkitImageSmoothingEnabled = false;
+    tCtx.mozImageSmoothingEnabled = false;
+
+    // Medidas exactas que funcionan en tu PNG de descarga
+    ticketCanvas.width = 400;
+    ticketCanvas.height = 550;
+
+    // --- LÓGICA DE DIBUJO (Mantenemos tu diseño actual) ---
+    tCtx.fillStyle = "#fff";
+    tCtx.fillRect(0, 0, ticketCanvas.width, ticketCanvas.height);
+    tCtx.fillStyle = "#000";
+    tCtx.strokeStyle = "#000";
+    tCtx.lineWidth = 4;
+    tCtx.strokeRect(5, 5, 390, 540);
+
+    const cliente = (document.getElementById('nombre-cliente').value || "________________").toUpperCase();
+    const paginasPDF = document.getElementById('num-paginas').value || 0;
+    const pByP = parseInt(document.getElementById('paginas-por-carilla').value) || 1;
+    const faz = document.querySelector('input[name="tipo-faz"]:checked').value.toUpperCase();
+    const total = document.getElementById('total-precio').textContent;
+    const fecha = new Date().toLocaleDateString();
+    const requiereAnillado = document.getElementById('con-anillado').checked;
+    const hojasFisicas = parseInt(document.getElementById('total-hojas').textContent) || 0;
+    let textoAnillado = requiereAnillado ? (hojasFisicas > 445 ? "EXCEDE LÍMITE" : "SÍ") : "NO";
+
+    tCtx.textBaseline = "top";
+    tCtx.textAlign = "left";
+    tCtx.font = "bold 32px 'Departure Mono', monospace"; 
+    tCtx.fillText("ESTUDIO MAGNO", 40, 30);
+    tCtx.font = "12px 'Departure Mono', monospace";
+    tCtx.fillText("==================================", 40, 75);
+    tCtx.font = "18px 'Departure Mono', monospace";
+    tCtx.fillText(`FECHA: ${fecha}`, 40, 100);
+    tCtx.fillText(`CLIENTE: ${cliente.substring(0, 20)}`, 40, 130);
+    tCtx.fillText("----------------------------------", 40, 160);
+    tCtx.fillText(`PAGINAS PDF: ${paginasPDF}`, 40, 190);
+    tCtx.fillText(`MODO: ${pByP > 1 ? pByP + 'p' : 'NORMAL'}`, 40, 220);
+    tCtx.fillText(`TIPO: ${faz}`, 40, 250);
+    tCtx.fillText(`ANILLADO: ${textoAnillado}`, 40, 280);
+    tCtx.fillText("----------------------------------", 40, 320);
+    tCtx.font = "bold 44px 'Departure Mono', monospace"; 
+    tCtx.fillText(`TOTAL: $${total}`, 40, 360);
+    tCtx.font = "12px 'Departure Mono', monospace";
+    tCtx.fillText("==================================", 40, 450);
+    tCtx.textAlign = "center";
+    tCtx.fillText("DOCUMENTO DE CONTROL INTERNO", 200, 470);
+    tCtx.fillText("GRACIAS POR ELEGIRNOS", 200, 490);
+
+    // --- NUEVA LÓGICA DE IMPRESIÓN "ANTIFALLOS" ---
+    const dataUrl = ticketCanvas.toDataURL("image/png");
+    
+    // Abrimos la ventana con el tamaño exacto del ticket
+    const ventanaImpresion = window.open('', '_blank', 'width=400,height=550');
+    
+ventanaImpresion.document.write(`<html><head><style>
+        @page { size: auto; margin: 0 !important; }
+        html, body { margin: 0 !important; padding: 0 !important; overflow: hidden; height: 100%; }
+        img { display: block; width: 100%; height: 100%; object-fit: contain; page-break-inside: avoid; }
+    </style></head><body>
+        <img src="${dataUrl}" onload="setTimeout(() => { window.print(); window.close(); }, 250);">
+    </body></html>`); // <-- LA COMILLA DEBE ESTAR PEGADA AL CIERRE DEL HTML
+    ventanaImpresion.document.close();
+}
+// --- LÓGICA DE FOTOS ---
+    const HOJAS = { "A3": { wIn: 11.69, hIn: 16.54 }, "A4": { wIn: 8.27, hIn: 11.69 }, "A5": { wIn: 5.83, hIn: 8.27 }, "A6": { wIn: 4.13, hIn: 5.83 }, "LEGAL": { wIn: 8.5, hIn: 14.0 } };
+    const MEDIDAS_PREDEFINIDAS = {
+        "A4": [
+            { n: "13x18 cm (2 por hoja)", w: 18, h: 13, c: 1, r: 2, mI: 0.5 },
+            { n: "10x15 cm (2 por hoja)", w: 15, h: 10, c: 1, r: 2, mI: 2.0 },
+            { n: "9x13 cm (4 por hoja)", w: 9, h: 13, c: 2, r: 2, mI: 0.5 },
+            { n: "20x25 cm (1 por hoja)", w: 20, h: 25, c: 1, r: 1 },
+        ],
+        "A6": [{ n: "Carnet 4x4 cm (6 por hoja)", w: 4, h: 4, c: 2, r: 3, carnet: true, mI: 0.5 }]
+    };
+
+    const GRID_ESPECIAL = { 1:{c:1,r:1}, 2:{c:1,r:2}, 3:{c:1,r:3}, 4:{c:2,r:2}, 6:{c:2,r:3}, 8:{c:2,r:4}, 9:{c:3,r:3}, 10:{c:2,r:5} };
+    let imagenes = [], pagIdx = 0;
+    const canvas = document.getElementById('canvas-preview'), ctx = canvas.getContext('2d');
 
     function cambiarTab(id, btn) {
         document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`seccion-${id}`).classList.add('active');
         btn.classList.add('active');
-        if(id === 'fotos') renderizar(); // Refrescar canvas al entrar
+        window.scrollTo(0, 0); 
+        if(id === 'fotos') renderizar();
     }
-
-    // --- LÓGICA COTIZADOR ---
-    const inputManual = document.getElementById('num-paginas');
-    const checkAnillado = document.getElementById('con-anillado');
-
-    function calcular() {
-        const paginasOriginales = parseInt(inputManual.value) || 0;
-        const esDobleFaz = document.querySelector('input[name="tipo-faz"]:checked').value === 'doble';
-        let hojasFisicas = esDobleFaz ? Math.ceil(paginasOriginales / 2) : paginasOriginales;
-        let precioPorHoja = 0;
-
-        // Escalas de precios originales
-        if (!esDobleFaz) {
-            if (hojasFisicas <= 100) precioPorHoja = 100;
-            else if (hojasFisicas <= 300) precioPorHoja = 90;
-            else precioPorHoja = 80;
-        } else {
-            if (hojasFisicas <= 100) precioPorHoja = 150; 
-            else if (hojasFisicas <= 300) precioPorHoja = 140;
-            else precioPorHoja = 130; 
-        }
-
-        let costoAnillado = 0;
-        if (checkAnillado.checked && hojasFisicas > 0) {
-            if (hojasFisicas <= 50) costoAnillado = 1200;
-            else if (hojasFisicas <= 150) costoAnillado = 2000;
-            else if (hojasFisicas <= 300) costoAnillado = 2700;
-            else costoAnillado = 3500;
-        }
-
-        document.getElementById('total-hojas').textContent = hojasFisicas;
-        document.getElementById('precio-unidad').textContent = precioPorHoja;
-        document.getElementById('precio-anillado').textContent = costoAnillado;
-        document.getElementById('total-precio').textContent = ((hojasFisicas * precioPorHoja) + costoAnillado).toLocaleString('es-AR');
-    }
-
-    inputManual.addEventListener('input', calcular);
-
-    document.getElementById('btn-pdf-fake').addEventListener('click', () => {
-        document.getElementById('subir-pdf').click();
-    });
-
-    document.getElementById('subir-pdf').addEventListener('change', async (e) => {
-        const status = document.getElementById('pdf-status');
-        const file = e.target.files[0];
-
-        if (file) {
-            status.textContent = file.name;
-            const reader = new FileReader();
-            reader.onload = async function() {
-                const pdf = await pdfjsLib.getDocument(new Uint8Array(this.result)).promise;
-                inputManual.value = pdf.numPages;
-                calcular();
-            };
-            reader.readAsArrayBuffer(file);
-        } else {
-            status.textContent = "Sin archivo seleccionado";
-        }
-    });
-
-    // --- LÓGICA ARMADO DE IMÁGENES ---
-    const MEDIDAS = {
-        "A4": [
-            // n: Nombre, w: Ancho(cm), h: Alto(cm), 
-            // c: Columnas, r: Filas, mI: Gap(cm), mE: Margen(cm)
-            { n: "13x18 cm (2 por hoja)", w: 18, h: 13, c: 1, r: 2, mI: 0.5 }, 
-            { n: "10x15 cm (2 por hoja)", w: 15, h: 10, c: 1, r: 2, mI: 2 },
-            { n: "9x13 cm (4 por hoja)", w: 9, h: 13, c: 2, r: 2, mI: 0.5 },
-            { n: "20x25 cm (1 por hoja)", w: 20, h: 25, c: 1, r: 1 },
-            { n: "Tiras 9x20 cm (3 por hoja)", w: 20, h: 9, c: 1, r: 3 },
-            { n: "6 fotos personalizadas (2x3)", w: 9, h: 9.2, c: 2, r: 3,},
-            { n: "2 fotos (Máximo 5mm Margen)", w: 20, h: 14.1, c: 1, r: 2, mE: 0.5, mI: 0.5 }, 
-            { n: "4 fotos (Máximo 5mm Margen)", w: 10, h: 14.35, c: 2, r: 2, mE: 0.5, mI: 0.5  }
-        ],
-        "A6": [{ n: "Carnet 4x4 cm (6 por hoja)", w: 4, h: 4, c: 2, r: 3 }]
-    };
-
-    let imagenes = [];
-    let pagIdx = 0;
-    const canvas = document.getElementById('canvas-preview');
-    const ctx = canvas.getContext('2d');
-
-    // Vincular clic del botón "fake" al input real
-    const btnFakeFotos = document.getElementById('btn-fotos-fake');
-    const inputRealFotos = document.getElementById('fotos-input');
-    const statusFotos = document.getElementById('fotos-status');
-
-    btnFakeFotos.addEventListener('click', () => {
-        inputRealFotos.click();
-    });
 
     function cambiarConfig() {
         const h = document.getElementById('tipo-hoja').value;
         const sel = document.getElementById('medida-foto');
-        sel.innerHTML = MEDIDAS[h].map((m, i) => `<option value="${i}">${m.n}</option>`).join('');
-        pagIdx = 0;
+        let html = (h !== 'A6') ? `<option value="especial">✨ Medida Especial</option>` : "";
+        if(MEDIDAS_PREDEFINIDAS[h]) MEDIDAS_PREDEFINIDAS[h].forEach((m, i) => html += `<option value="${i}">${m.n}</option>`);
+        sel.innerHTML = html;
+        gestionarInterfazEspecial();
+    }
+
+    function gestionarInterfazEspecial() {
+        const esEspecial = document.getElementById('medida-foto').value === 'especial';
+        document.getElementById('contenedor-contador').style.display = esEspecial ? 'flex' : 'none';
         renderizar();
     }
 
-    // Actualizar lógica de carga para usar el nuevo input y mostrar estado
-    inputRealFotos.addEventListener('change', (e) => {
-        const archivos = Array.from(e.target.files);
-        
-        // Actualizar el estado visual
-        if (archivos.length === 0) {
-            statusFotos.textContent = "Sin archivos seleccionados";
-        } else if (archivos.length === 1) {
-            statusFotos.textContent = "1 archivo seleccionado";
-        } else {
-            statusFotos.textContent = `${archivos.length} archivos seleccionados`;
-        }
+    function pasoContador(delta) {
+        const input = document.getElementById('cant-especial');
+        let v = parseInt(input.value);
+        let next = v + delta;
+        if (next === 5) next = (delta > 0) ? 6 : 4;
+        if (next === 7) next = (delta > 0) ? 8 : 6;
+        if (next < 1) next = 1; if (next > 10) next = 10;
+        input.value = next;
+        renderizar();
+    }
 
-        // Ejecutar la lógica de carga original
-        imagenes = [];
-        let counts = 0;
-        if(archivos.length === 0) return;
+    function renderizar() {
+        const hojaKey = document.getElementById('tipo-hoja').value;
+        const medVal = document.getElementById('medida-foto').value;
+        const hDim = HOJAS[hojaKey];
+        canvas.width = Math.round(hDim.wIn * DPI);
+        canvas.height = Math.round(hDim.hIn * DPI);
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let config;
+        if(medVal === 'especial') {
+            const cant = parseInt(document.getElementById('cant-especial').value);
+            const grid = GRID_ESPECIAL[cant];
+            const mE = 1 * F ;
+            const mI = 0.5 * F; 
+            const wFoto = (canvas.width - (2 * mE) - (grid.c - 1) * mI) / grid.c;
+            const hFoto = (canvas.height - (2 * mE) - (grid.r - 1) * mI) / grid.r;
+            config = { w: wFoto / F, h: hFoto / F, c: grid.c, r: grid.r, mI: 0.5, mE: 1 };
+        } else {
+            config = MEDIDAS_PREDEFINIDAS[hojaKey][medVal];
+        }
+        dibujarFotos(config);
+    }
+
+    function dibujarFotos(conf) {
+        if(!imagenes.length) return;
+        const porHoja = conf.c * conf.r;
+        document.getElementById('p-tot').textContent = conf.carnet ? 1 : Math.ceil(imagenes.length / porHoja);
+        document.getElementById('p-act').textContent = pagIdx + 1;
+
+        let filtros = "";
+        if (document.getElementById('optimizador').checked) filtros += "brightness(1.15) contrast(1.1) saturate(1.05) ";
+        if (document.getElementById('modo-calido').checked) filtros += "sepia(0.4) brightness(1.05) ";
+        if (document.getElementById('modo-negativo').checked) filtros += "grayscale(1) invert(1) ";
+
+        const mE = (conf.mE || 0) * F, mI = (conf.mI || 0.5) * F;
+        const wPx = conf.w * F, hPx = conf.h * F;
+        let startX = conf.mE ? mE : (canvas.width - (conf.c * wPx + (conf.c - 1) * mI)) / 2;
+        let startY = conf.mE ? mE : (canvas.height - (conf.r * hPx + (conf.r - 1) * mI)) / 2;
+
+        for(let i=0; i < porHoja; i++) {
+            let img = conf.carnet ? imagenes[0] : imagenes[(pagIdx * porHoja) + i];
+            if(!img) break;
+            const col = i % conf.c, fila = Math.floor(i / conf.c);
+            const x = startX + col * (wPx + mI), y = startY + fila * (hPx + mI);
+            ctx.save();
+            ctx.filter = filtros || "none";
+            ctx.beginPath(); ctx.rect(x, y, wPx, hPx); ctx.clip();
+            let dW = img.width, dH = img.height, rot = 0;
+            if((img.width > img.height) !== (wPx > hPx)) { rot = 90; dW = img.height; dH = img.width; }
+            let ratio = document.getElementById('rellenar').checked ? Math.max(wPx/dW, hPx/dH) : Math.min(wPx/dW, hPx/dH);
+            ctx.translate(x + wPx/2, y + hPx/2); if(rot) ctx.rotate(Math.PI/2);
+            ctx.drawImage(img, -(img.width*ratio)/2, -(img.height*ratio)/2, img.width*ratio, img.height*ratio);
+            ctx.restore(); // Aquí termina el recorte de la imagen
+
+            // LÍNEAS DE CORTE MEJORADAS
+            if (document.getElementById('lineas-corte').checked) {
+                ctx.save(); // Guardamos estado limpio
+                ctx.filter = "none"; // Quitamos filtros para que la línea no salga con brillo/contraste
+                ctx.strokeStyle = "#888888"; // Un gris más oscuro y visible
+                ctx.lineWidth = 2; // Un poquito más gruesa
+                ctx.setLineDash([10, 10]); // Línea punteada para que no parezca parte de la foto
+                ctx.strokeRect(x, y, wPx, hPx);
+                ctx.restore();
+            }    }
+    }
+
+    document.getElementById('fotos-input').onchange = (e) => {
+        const archivos = Array.from(e.target.files);
+        imagenes = []; let counts = 0;
         archivos.forEach(f => {
             const r = new FileReader();
             r.onload = (ev) => {
@@ -332,142 +813,142 @@ body {
             };
             r.readAsDataURL(f);
         });
-    });
+    };
 
-function renderizar() {
-    const hoja = document.getElementById('tipo-hoja').value;
-    const medIdx = document.getElementById('medida-foto').value;
-    const config = MEDIDAS[hoja][medIdx];
-    const fill = document.getElementById('rellenar').checked;
+    async function descargar() {
+        const total = parseInt(document.getElementById('p-tot').textContent);
+        for(let i=0; i<total; i++) {
+            pagIdx = i; renderizar();
+            const a = document.createElement('a');
+            a.download = `MAGNO_P${i+1}.jpg`;
+            a.href = canvas.toDataURL("image/jpeg", 0.92);
+            a.click();
+            await new Promise(res => setTimeout(res, 800));
+        }
+    }
+
+    function pagAnt() { if(pagIdx > 0) { pagIdx--; renderizar(); } }
+    function pagSig() { if(pagIdx < parseInt(document.getElementById('p-tot').textContent)-1) { pagIdx++; renderizar(); } }
+    cambiarConfig();
+
+function alternarTema() {
+    const cuerpo = document.body;
+    cuerpo.classList.toggle('tema-negativo');
     
-    // 1. Configuración del lienzo
-    canvas.width = (hoja === 'A4') ? 2480 : 1240; 
-    canvas.height = (hoja === 'A4') ? 3508 : 1748;
-    
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const f = 118.11; // 300 DPI
-    const gap = config.mI ? (config.mI * f) : 40;
-    const porHoja = config.c * config.r;
-
-    // 2. Cálculo de páginas
-    const esCarnetA6 = (hoja === 'A6');
-    const totalPaginasCalculadas = esCarnetA6 ? 1 : Math.ceil(imagenes.length / porHoja);
-    
-    document.getElementById('p-tot').textContent = totalPaginasCalculadas || 1;
-    document.getElementById('p-act').textContent = pagIdx + 1;
-
-    if (imagenes.length === 0) return;
-
-    // 3. Posicionamiento de la grilla
-    const gridW = (config.c * config.w * f) + (config.c - 1) * gap;
-    const gridH = (config.r * config.h * f) + (config.r - 1) * gap;
-    const startX = config.mE ? (config.mE * f) : (canvas.width - gridW) / 2;
-    const startY = config.mE ? (config.mE * f) : (canvas.height - gridH) / 2;
-
-    // 4. BUCLE DE DIBUJO (Aquí estaba el error)
-    for(let i=0; i < porHoja; i++) {
-        let img;
-        if (esCarnetA6) {
-            // Repite siempre la primera imagen en todos los huecos
-            img = imagenes[0];
-        } else {
-            // Busca la imagen correspondiente al hueco y página actual
-            let imgIdx = (pagIdx * porHoja) + i;
-            img = imagenes[imgIdx];
-        }
-
-        if(!img) break; // Si no hay más fotos, deja de dibujar
-
-        const col = i % config.c;
-        const fila = Math.floor(i / config.c);
-        const x = startX + col * (config.w * f + gap);
-        const y = startY + fila * (config.h * f + gap);
-        const tw = config.w * f;
-        const th = config.h * f;
-
-        // --- APLICACIÓN DE FILTROS ---
-        let filtros = "";
-        if (document.getElementById('optimizador').checked) {
-            filtros += "brightness(1.25) contrast(1.1) saturate(1.15) ";
-        }
-        if (document.getElementById('modo-calido').checked) {
-            filtros += "sepia(0.4) brightness(1.2) "; 
-        }
-        if (document.getElementById('modo-negativo').checked) {
-            filtros += "grayscale(1) invert(1) ";
-        }
-        ctx.filter = filtros || "none";
-
-        // --- DIBUJO CON ROTACIÓN Y CLIPPING ---
-        ctx.save(); 
-        // Crear área de recorte para la foto
-        ctx.beginPath();
-        ctx.rect(x, y, tw, th);
-        ctx.clip();
-
-        let drawW = img.width, drawH = img.height, rotation = 0;
-        if ((img.width > img.height) !== (tw > th)) {
-            rotation = 90; drawW = img.height; drawH = img.width;
-        }
-
-        let ratio = fill ? Math.max(tw / drawW, th / drawH) : Math.min(tw / drawW, th / drawH);
-        
-        ctx.translate(x + tw/2, y + th/2);
-        if(rotation !== 0) ctx.rotate(Math.PI / 2);
-
-        ctx.drawImage(img, -(img.width * ratio)/2, -(img.height * ratio)/2, img.width * ratio, img.height * ratio);
-        
-        ctx.restore(); 
-        ctx.filter = "none"; // Limpiar filtro para la siguiente foto
+    const btn = document.getElementById('btn-tema');
+    if (cuerpo.classList.contains('tema-negativo')) {
+        btn.textContent = "MODO DÍA";
+        btn.style.background = "#fff";
+        btn.style.color = "#000";
+    } else {
+        btn.textContent = "MODO NOCHE";
+        btn.style.background = "#000";
+        btn.style.color = "#fff";
     }
 }
 
-    function pagAnt() { if(pagIdx > 0) { pagIdx--; renderizar(); } }
-    function pagSig() { 
-        const h = document.getElementById('tipo-hoja').value;
-        const c = MEDIDAS[h][document.getElementById('medida-foto').value];
-        if(pagIdx < Math.ceil(imagenes.length / (c.c*c.r)) - 1) { pagIdx++; renderizar(); } 
+// --- TODO LO DE ELECTRON Y PDF AQUÍ ---
+const { ipcRenderer } = require('electron');
+
+// Configuramos el worker de PDF.js
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+// Escuchamos los archivos que envía el proceso principal (main.js)
+ipcRenderer.on('archivos-arrojados', (event, paths) => {
+    paths.forEach(ruta => {
+        const extension = ruta.split('.').pop().toLowerCase();
+        if (extension === 'pdf') {
+            contarPaginasPDF(ruta);
+        } else if (['jpg', 'jpeg', 'png'].includes(extension)) {
+            cargarImagenDesdeRuta(ruta);
+        }
+    });
+});
+
+async function contarPaginasPDF(ruta) {
+    try {
+        const loadingTask = pdfjsLib.getDocument('file://' + ruta);
+        const pdf = await loadingTask.promise;
+        document.getElementById('num-paginas').value = pdf.numPages;
+        const nombreArr = ruta.split('\\').pop().split('/').pop();
+        
+        // CORRECCIÓN: Usar textContent y el ID correcto del div
+        const contenedorNombre = document.getElementById('nombre-archivo-pdf');
+        if(contenedorNombre) {
+            contenedorNombre.textContent = nombreArr.replace('.pdf', '').toUpperCase();
+        }
+        
+        calcular(); // Llamada directa
+    } catch (e) {
+        console.error("Error al leer PDF:", e);
     }
+}
 
-    async function descargar() {
-    // Definimos las constantes necesarias para el cálculo
-    const hoja = document.getElementById('tipo-hoja').value;
-    const config = MEDIDAS[hoja][document.getElementById('medida-foto').value];
-    const porHoja = config.c * config.r;
+async function obtenerImagenesDePaginas() {
+    const totalElemento = document.getElementById('p-tot');
+    const total = totalElemento ? parseInt(totalElemento.textContent) : 1;
+    let imagenesPaginas = [];
+    
+    const originalIdx = pagIdx;
 
-    // Aplicamos la lógica que mencionaste: 
-    // ¿Es A6? SI -> 1 página. NO -> Calcular según cantidad de fotos.
-    const totalPaginas = (hoja === 'A6') ? 1 : Math.ceil(imagenes.length / porHoja);
-
-    if (imagenes.length === 0) {
-        alert("No hay imágenes para descargar.");
-        return;
-    }
-
-    const confirmacion = confirm(`Se descargarán ${totalPaginas} hoja/s. ¿Continuar?`);
-    if (!confirmacion) return;
-
-    const originalPagIdx = pagIdx;
-
-    for (let i = 0; i < totalPaginas; i++) {
+    for (let i = 0; i < total; i++) {
         pagIdx = i;
-        renderizar();
-
-        const a = document.createElement('a');
-        a.download = `HOJA_${i + 1}.jpg`;
-        a.href = canvas.toDataURL("image/jpeg", 0.9);
-        a.click();
-
-        await new Promise(resolve => setTimeout(resolve, 500));
+        renderizar(); // Dibuja la página con tus filtros y ajustes
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.9); 
+        imagenesPaginas.push(dataUrl);
     }
 
-    pagIdx = originalPagIdx;
+    pagIdx = originalIdx;
     renderizar();
-    }
+    
+    return imagenesPaginas;
+}
+async function imprimirHojas() {
+    const listaImagenes = await obtenerImagenesDePaginas();
+    const ventanaImpresion = window.open('', '_blank', 'show=false,width=1,height=1');    
+    // Detectamos el tamaño de hoja elegido (A4, A3, etc.)
+    const tipoHoja = document.getElementById('tipo-hoja').value || 'A4';
 
-    cambiarConfig();
-</script>
+    let contenidoHtml = `
+        <html>
+            <head>
+                <title>Impresión Estudio Magno</title>
+                <style>
+                    @page { 
+                        size: ${tipoHoja}; 
+                        margin: 0; 
+                    }
+                    body { margin: 0; padding: 0; background: #fff; }
+                    img { 
+                        display: block; 
+                        width: 100vw; 
+                        height: 100vh; 
+                        object-fit: contain; 
+                        page-break-after: always; 
+                    }
+                </style>
+            </head>
+            <body>`;
+
+    listaImagenes.forEach(imgData => {
+        contenidoHtml += `<img src="${imgData}">`;
+    });
+
+    contenidoHtml += `
+            <script>
+                window.onload = () => {
+                    // Un pequeño retraso para asegurar que Electron vea las imágenes
+                    setTimeout(() => {
+                        window.print();
+                        window.close();
+                    }, 300);
+                };
+            ` + `<` + `/script>
+            </body>
+        </html>`;
+
+    ventanaImpresion.document.write(contenidoHtml);
+    ventanaImpresion.document.close();
+}</script>
 </body>
 </html>
