@@ -7,11 +7,7 @@
     <title>ESTUDIO MAGNO | Producción</title>
     <style>
         :root { --fuente-mono: "SFMono-Regular", Consolas, monospace; }
-        @font-face {
-    font-family: 'Departure Mono';
-    src: url('ruta/a/tu/fuente/DepartureMono-Regular.woff2') format('woff2');
-    /* O el formato que tengas (.ttf, .otf) */
-}
+
         
         body { 
             margin: 0; 
@@ -127,6 +123,33 @@
             margin-bottom: 40px; 
             box-sizing: border-box; 
         }
+
+/* Este es el nuevo contenedor exclusivo para fotos */
+.panel-fotos {
+    background: #fff;
+    padding: 25px;
+    border: 2px solid #000;
+    width: 450px; /* Empezamos con el mismo ancho que el original */
+    box-shadow: 10px 10px 0 #e0e0e0;
+    font-family: var(--fuente-mono);
+    margin-top: 20px;
+    margin-bottom: 40px;
+    box-sizing: border-box;
+    
+    /* ESTO ES LO NUEVO: Preparamos la caja para que lo de adentro se pueda repartir */
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Cuando la pantalla sea grande, el panel de fotos se ensancha al doble */
+@media (min-width: 1100px) {
+    .panel-fotos {
+        width: 950px; /* Casi el doble de ancho */
+    }
+}
+
 
         h3 { border-bottom: 3px solid #000; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; }
         label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 0.9rem; }
@@ -297,10 +320,52 @@ body.tema-negativo #nombre-cliente {
         width: 100% !important;
     }
 }
+.panel-fotos {
+    background: #fff;
+    padding: 25px;
+    border: 2px solid #000;
+    width: 450px;
+    box-shadow: 10px 10px 0 #e0e0e0;
+    font-family: var(--fuente-mono);
+    margin-top: 20px;
+    margin-bottom: 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+@media (min-width: 1100px) {
+    .panel-fotos {
+        width: 950px;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+    }
+
+    .columna-controles {
+        width: 400px;
+        flex-shrink: 0;
+    }
+
+    .columna-previsualizacion {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+#canvas-preview {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+}
 </style>
 </head>
 <body>
-
+<canvas id="splash-pixelado" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:10000; background:white;"></canvas>
 <header>
     <div>
         <a href="index.html" class="logo-link"><strong>ESTUDIO MAGNO</strong></a>
@@ -326,6 +391,15 @@ body.tema-negativo #nombre-cliente {
             <input type="file" id="subir-pdf" accept="application/pdf" style="display: none;">
             <div id="nombre-archivo-pdf" class="contenedor-nombre-pdf">Sin archivo seleccionado</div>
             
+            <div style="border: 2px solid #000; padding: 10px; margin: 15px 0; display: flex; flex-direction: column; gap: 10px;">
+    <label class="opcion-check">
+        <input type="checkbox" id="check-escuela" onchange="validarChecks('escuela')"> 🎓 PRECIO ESCUELA
+    </label>
+    <label class="opcion-check">
+        <input type="checkbox" id="check-folleto" onchange="validarChecks('folleto')"> 📄 MODO FOLLETO
+    </label>
+</div>
+
 <div class="fila-medida">
     <div class="col-medida">
         <label>PÁGINAS PDF:</label>
@@ -370,8 +444,10 @@ body.tema-negativo #nombre-cliente {
     </div>
 
     <div id="seccion-fotos" class="seccion">
-        <div class="panel">
-            <h3>ARMADO DE FOTOS</h3>
+        <div class="panel-fotos">
+            <div class="columna-controles">
+            <h3>ARMADO DE FOTOS
+            </h3>
             <button type="button" class="btn-magno" onclick="document.getElementById('fotos-input').click()">CARGAR IMÁGENES</button>
             <input type="file" id="fotos-input" accept="image/*" multiple style="display: none;">
 
@@ -384,27 +460,66 @@ body.tema-negativo #nombre-cliente {
                 <option value="LEGAL">Legal (Oficio)</option>
             </select>
             
-            <div class="fila-medida">
-                <div class="col-medida">
-                    <label>MEDIDA FOTO:</label>
-                    <select id="medida-foto" onchange="gestionarInterfazEspecial()"></select>
-                </div>
-                <div class="col-contador" id="contenedor-contador">
-                    <label>FOTOS:</label>
-                    <div class="stepper">
-                        <button type="button" onclick="pasoContador(-1)">-</button>
-                        <input type="text" id="cant-especial" value="1" readonly>
-                        <button type="button" onclick="pasoContador(1)">+</button>
-                    </div>
-                </div>
-            </div>
-            <label class="opcion-check"><input type="checkbox" id="lineas-corte" onchange="renderizar()"> ✂️ MOSTRAR LÍNEAS DE CORTE</label>
-            <label class="opcion-check"><input type="checkbox" id="rellenar" onchange="renderizar()"> 🖼️ RELLENAR IMAGEN (SIN BORDES)</label>
-            <label class="opcion-check"><input type="checkbox" id="optimizador" onchange="renderizar()"> ✨ OPTIMIZAR (BRILLO/CONTRASTE)</label>
-            <label class="opcion-check"><input type="checkbox" id="modo-calido" onchange="renderizar()"> 🔥 MODO CÁLIDO</label>
-            <label class="opcion-check"><input type="checkbox" id="modo-negativo" onchange="renderizar()"> 🌓 MODO INVERTIDO (AHORRO)</label>
 
-            <div class="controles-pag">
+                            <div class="control-group">
+    <label class="switch-container">
+        <input type="checkbox" id="check-alta-res" onchange="actualizarDPI()">
+        <span class="switch-label">600 DPI (Alta Calidad)</span>
+    </label>
+    <small style="display: block; color: #666; margin-top: 4px;">Por defecto: 300 DPI</small>
+</div>
+
+
+<div class="opcion-efecto" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+    <label class="opcion-check">
+        <input type="checkbox" id="check-modo-polaroid" onchange="cambiarConfig()"> 
+        <strong>MODO POLAROID (7.9x7.9)</strong>
+    </label>
+</div>
+
+<div id="wrapper-efecto-vintage" style="display: none; margin-left: 20px;">
+    <label class="opcion-check">
+        <input type="checkbox" id="check-efecto-vintage" onchange="renderizar()"> 
+        ✨ Tono Vintage (Cálido)
+    </label>
+</div>
+
+<div style="margin-top: 15px; margin-bottom: 10px;">
+    <label>MEDIDA FOTO:</label>
+    <select id="medida-foto" onchange="gestionarInterfazEspecial()"></select>
+</div>
+
+<div class="fila-medida" style="display: flex; gap: 15px; margin-bottom: 20px;">
+    
+    <div id="contenedor-contador" style="flex: 1; display: none; flex-direction: column;">
+        <label>FOTOS POR HOJA:</label>
+        <div class="stepper">
+            <button type="button" onclick="pasoContador(-1)">-</button>
+            <input type="text" id="cant-especial" value="1" readonly>
+            <button type="button" onclick="pasoContador(1)">+</button>
+        </div>
+    </div>
+
+    <div style="flex: 1; display: flex; flex-direction: column;">
+        <label>REPETIR COPIAS:</label>
+        <div class="stepper">
+            <button type="button" onclick="pasoRepetir(-1)">-</button>
+            <input type="text" id="input-repetir" value="1" readonly>
+            <button type="button" onclick="pasoRepetir(1)">+</button>
+        </div>
+    </div>
+</div>
+
+<label class="opcion-check"><input type="checkbox" id="lineas-corte" onchange="renderizar()"> ✂️ MOSTRAR LÍNEAS DE CORTE</label>
+<label class="opcion-check"><input type="checkbox" id="rellenar" onchange="renderizar()"> 🖼️ RELLENAR IMAGEN (SIN BORDES)</label>
+<label class="opcion-check"><input type="checkbox" id="optimizador" onchange="renderizar()"> ✨ OPTIMIZAR (BRILLO/CONTRASTE)</label>
+<label class="opcion-check"><input type="checkbox" id="modo-calido" onchange="renderizar()"> 🔥 MODO CÁLIDO</label>
+<label class="opcion-check"><input type="checkbox" id="modo-negativo" onchange="renderizar()"> 🌓 MODO INVERTIDO (AHORRO)</label>
+
+
+</div>
+<div class="columna-previsualizacion">
+<div class="controles-pag">
                 <button class="btn-magno" style="width: 45px; margin:0;" onclick="pagAnt()">◀</button>
                 <span>PÁG <span id="p-act">1</span> / <span id="p-tot">1</span></span>
                 <button class="btn-magno" style="width: 45px; margin:0;" onclick="pagSig()">▶</button>
@@ -417,13 +532,112 @@ body.tema-negativo #nombre-cliente {
 </button>
         </div>
     </div>
+    </div>
 </main>
 
-<script>
-    const DPI = 600;
-    const F = DPI / 2.54;
-    document.getElementById('fecha').textContent = new Date().toLocaleDateString();
+<svg style="display:none">
+  <defs>
+    <filter id="magno-pure-svg" color-interpolation-filters="sRGB">
+      <!-- 1. MATRIZ: Ajustada para ser mucho más suave y evitar el tinte violeta -->
+      <feColorMatrix type="matrix" values="
+        0.9, 0, 0, 0, 0.05
+        0, 0.9, 0, 0, 0.05
+        0, 0, 1.0, 0, 0.1
+        0, 0, 0, 1, 0" />
 
+      <!-- 2. TABLA DE TRANSFERENCIA: Esto es lo que evita que se queme -->
+      <feComponentTransfer>
+        <!-- La 'table' define que aunque la entrada sea 100% luz, la salida sea 90% (evita el blanco quemado) -->
+        <feFuncR type="table" tableValues="0.05 0.9" />
+        <feFuncG type="table" tableValues="0.05 0.9" />
+        <!-- El azul empieza un poco más arriba (0.1) para dar el tono frío en sombras -->
+        <feFuncB type="table" tableValues="0.1 0.95" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+</svg>
+
+<script>
+
+window.addEventListener('load', () => {
+    const canvas = document.getElementById('splash-pixelado');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.src = 'captura-app.png'; 
+
+img.onload = () => {
+    let res = 0.005; // Inicio con píxeles gigantes
+    let ultimaVez = 0;
+    const intervaloSalto = 150; // <--- AJUSTÁ ESTO: milisegundos entre cada "salto" de píxel
+    
+    function animar(tiempoActual) {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+
+        // Solo actualizamos el pixelado si pasó el tiempo del 'intervaloSalto'
+        if (tiempoActual - ultimaVez > intervaloSalto) {
+            // Saltos de 0.03 en 0.03 (ajustá este número para saltos más o menos bruscos)
+            res += 0.04; 
+            ultimaVez = tiempoActual;
+        }
+
+        const xOriginal = (w - img.width) / 2;
+        const yOriginal = 0;
+
+        // Dibujamos con la resolución actual (que se mantiene fija entre saltos)
+        const sw = Math.max(1, img.width * res);
+        const sh = Math.max(1, img.height * res);
+        
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = sw;
+        tempCanvas.height = sh;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(img, 0, 0, sw, sh);
+        
+        ctx.clearRect(0, 0, w, h);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(tempCanvas, 0, 0, sw, sh, xOriginal, yOriginal, img.width, img.height);
+
+        if (res < 0.24) { // Tu límite de 30-35%
+            requestAnimationFrame(animar);
+        } else {
+            canvas.style.transition = 'opacity 0.2s linear';
+            canvas.style.opacity = '0';
+            setTimeout(() => canvas.remove(), 200);
+        }
+    }
+    // Iniciamos la animación pasando el tiempo inicial
+    requestAnimationFrame(animar);
+};
+    img.onerror = () => canvas.remove();
+});
+
+
+// 1. Cambiamos las definiciones iniciales a let
+let DPI = 300;
+let F = DPI / 2.54;
+
+// 2. La función que dispara el cambio
+function actualizarDPI() {
+    console.log("--- Intento de cambio de DPI ---");
+    const elCheck = document.getElementById('check-alta-res');
+    
+    if (elCheck.checked) {
+        DPI = 600;
+    } else {
+        DPI = 300;
+    }
+
+    F = DPI / 2.54;
+
+    if (typeof renderizar === 'function') {
+        renderizar();
+    }
+}    document.getElementById('fecha').textContent = new Date().toLocaleDateString();
+    // ... resto de tu código de la marquesina (Estudio Magno | ...)
 // Definimos las partes por separado
 const textoPuro = "PRODUCCIÓN — ESTUDIO MAGNO";
 const glifo = "|"; // Aquí va tu separador o glifo puro
@@ -463,64 +677,88 @@ document.getElementById('subir-pdf').onchange = function(e) {
     }
 };
 
+function validarChecks(quien) {
+    const escuela = document.getElementById('check-escuela');
+    const folleto = document.getElementById('check-folleto');
+
+    if (quien === 'escuela' && escuela.checked) folleto.checked = false;
+    if (quien === 'folleto' && folleto.checked) escuela.checked = false;
+
+    calcular(); // Recalcular precio al cambiar el modo
+}
+
 function calcular() {
     const paginasPDF = parseInt(document.getElementById('num-paginas').value) || 0;
     const paginasPorCarilla = parseInt(document.getElementById('paginas-por-carilla').value) || 1;
     const esDoble = document.querySelector('input[name="tipo-faz"]:checked').value === 'doble';
     const requiereAnillado = document.getElementById('con-anillado').checked;
     
+    const esEscuela = document.getElementById('check-escuela').checked;
+    const esFolleto = document.getElementById('check-folleto').checked;
+
     let carillasTotales = Math.ceil(paginasPDF / paginasPorCarilla);
     let hojas = esDoble ? Math.ceil(carillasTotales / 2) : carillasTotales;
 
-    // --- LISTA DE PRECIOS FOTOCOPIAS ---
+    // --- LISTAS DE PRECIOS ---
     const ESCALA_SIMPLE = [
-        { hasta: 250, precio: 100 },
+        { hasta: Infinity, precio: 100 }];
+    const ESCALA_DOBLE = [
+        { hasta: 100, precio: 200 },
+        { hasta: Infinity, precio: 160 }
+    ];
+
+    const ESCALA_ESCUELA_SIMPLE = [
+        { hasta: Infinity, precio: 100 }
+    ];
+    const ESCALA_ESCUELA_DOBLE = [
+        { hasta: Infinity, precio: 160 }
+    ];
+
+    const ESCALA_FOLLETO_SIMPLE = [
+        { hasta: 200, precio: 100 },
         { hasta: 400, precio: 90 },
         { hasta: Infinity, precio: 80 }
     ];
 
-    const ESCALA_DOBLE = [
-        { hasta: 70, precio: 190 },
-        { hasta: 200, precio: 160 },
-        { hasta: Infinity, precio: 150 }
-    ];
+    // Selección de escala
+    let escala;
+    if (esEscuela) {
+        escala = esDoble ? ESCALA_ESCUELA_DOBLE : ESCALA_ESCUELA_SIMPLE;
+    } else if (esFolleto) {
+        escala = ESCALA_FOLLETO_SIMPLE;
+    } else {
+        escala = esDoble ? ESCALA_DOBLE : ESCALA_SIMPLE;
+    }
 
-    const escala = esDoble ? ESCALA_DOBLE : ESCALA_SIMPLE;
     let rangoEncontrado = escala.find(r => hojas <= r.hasta) || escala[escala.length - 1];
     let precioHoja = rangoEncontrado.precio;
 
-    // --- LISTA DE ESPIRALES (TABLA UNIFICADA) ---
+    // --- LÓGICA DE ANILLADO ---
     let costoAnillado = 0;
     let etiquetaEspiral = "";
-    
     const TABLA_ESPIRAL = [
-        { hasta: 48, m: "7-9mm", p: 1300 },
-        { hasta: 83, m: "12-14mm", p: 1500 },
-        { hasta: 116, m: "17-20mm", p: 1800 },
-        { hasta: 155, m: "23-25mm", p: 2000 },
-        { hasta: 245, m: "29-33mm", p: 2700 },
-        { hasta: 345, m: "36-40mm", p: 3300 },
-        { hasta: 445, m: "45-50mm", p: 4500 } 
-        // No agregamos más filas para que el .find() devuelva 'undefined' si supera 445
+        { hasta: 48, m: "7-9mm", p: 1500 },
+        { hasta: 83, m: "12-14mm", p: 1800 },
+        { hasta: 116, m: "17-20mm", p: 2000 },
+        { hasta: 155, m: "23-25mm", p: 2500 },
+        { hasta: 245, m: "29-33mm", p: 3500 },
+        { hasta: 345, m: "36-40mm", p: 4500 },
+        { hasta: 445, m: "45-50mm", p: 5500 }
     ];
 
     if (requiereAnillado && hojas > 0) {
         let espiral = TABLA_ESPIRAL.find(e => hojas <= e.hasta);
-        
         if (espiral) {
             etiquetaEspiral = espiral.m;
             costoAnillado = espiral.p;
         } else {
-            // SI SUPERA LAS 445 HOJAS:
             etiquetaEspiral = "EXCEDE LÍMITE (Máx 445h)";
-            costoAnillado = 0; // El precio vuelve a cero porque no se puede hacer
+            costoAnillado = 0;
         }
     }
 
     // --- ACTUALIZACIÓN DE INTERFAZ ---
     document.getElementById('total-hojas').textContent = hojas;
-    
-    // Mostramos el mensaje de error o el precio
     document.getElementById('precio-anillado').textContent = costoAnillado > 0 
         ? `${etiquetaEspiral} — $${costoAnillado}` 
         : (requiereAnillado && hojas > 445 ? etiquetaEspiral : "$0");
@@ -530,7 +768,6 @@ function calcular() {
     
     document.getElementById('total-precio').textContent = totalRedondeado.toLocaleString('es-AR');
 }
-
 
 function pasoPaginaPorCarilla(delta) {
     const input = document.getElementById('paginas-por-carilla');
@@ -648,11 +885,11 @@ function imprimirTicket() {
 
     tCtx.textBaseline = "top";
     tCtx.textAlign = "left";
-    tCtx.font = "bold 32px 'Departure Mono', monospace"; 
+    tCtx.font = "bold 32px   monospace"; 
     tCtx.fillText("ESTUDIO MAGNO", 40, 30);
-    tCtx.font = "12px 'Departure Mono', monospace";
+    tCtx.font = "12px   monospace";
     tCtx.fillText("==================================", 40, 75);
-    tCtx.font = "18px 'Departure Mono', monospace";
+    tCtx.font = "18px   monospace";
     tCtx.fillText(`FECHA: ${fecha}`, 40, 100);
     tCtx.fillText(`CLIENTE: ${cliente.substring(0, 20)}`, 40, 130);
     tCtx.fillText("----------------------------------", 40, 160);
@@ -661,9 +898,9 @@ function imprimirTicket() {
     tCtx.fillText(`TIPO: ${faz}`, 40, 250);
     tCtx.fillText(`ANILLADO: ${textoAnillado}`, 40, 280);
     tCtx.fillText("----------------------------------", 40, 320);
-    tCtx.font = "bold 44px 'Departure Mono', monospace"; 
+    tCtx.font = "bold 44px   monospace"; 
     tCtx.fillText(`TOTAL: $${total}`, 40, 360);
-    tCtx.font = "12px 'Departure Mono', monospace";
+    tCtx.font = "12px   monospace";
     tCtx.fillText("==================================", 40, 450);
     tCtx.textAlign = "center";
     tCtx.fillText("DOCUMENTO DE CONTROL INTERNO", 200, 470);
@@ -709,15 +946,39 @@ ventanaImpresion.document.write(`<html><head><style>
         if(id === 'fotos') renderizar();
     }
 
-    function cambiarConfig() {
-        const h = document.getElementById('tipo-hoja').value;
-        const sel = document.getElementById('medida-foto');
-        let html = (h !== 'A6') ? `<option value="especial">✨ Medida Especial</option>` : "";
-        if(MEDIDAS_PREDEFINIDAS[h]) MEDIDAS_PREDEFINIDAS[h].forEach((m, i) => html += `<option value="${i}">${m.n}</option>`);
-        sel.innerHTML = html;
-        gestionarInterfazEspecial();
+function cambiarConfig() {
+    // 1. Buscamos los elementos pero sin forzar su existencia
+    const elModoPol = document.getElementById('check-modo-polaroid');
+    const elSelMedida = document.getElementById('medida-foto');
+    const elWrapperVintage = document.getElementById('wrapper-efecto-vintage');
+    const elCheckVintage = document.getElementById('check-efecto-vintage');
+
+    // 2. Si el modo Polaroid existe, aplicamos su lógica de visualización
+    if (elModoPol && elSelMedida) {
+        if (elModoPol.checked) {
+            elSelMedida.disabled = true;
+            elSelMedida.style.opacity = "0.5";
+            if (elWrapperVintage) elWrapperVintage.style.display = 'block';
+        } else {
+            elSelMedida.disabled = false;
+            elSelMedida.style.opacity = "1";
+            if (elWrapperVintage) elWrapperVintage.style.display = 'none';
+            if (elCheckVintage) elCheckVintage.checked = false;
+        }
     }
 
+    // 3. Lógica de medidas (Esto sigue funcionando siempre)
+    const h = document.getElementById('tipo-hoja').value;
+    let html = (h !== 'A6') ? `<option value="especial">✨ Medida Especial</option>` : "";
+    if(MEDIDAS_PREDEFINIDAS[h]) {
+        MEDIDAS_PREDEFINIDAS[h].forEach((m, i) => html += `<option value="${i}">${m.n}</option>`);
+    }
+    if (elSelMedida) elSelMedida.innerHTML = html;
+
+    // 4. Mandamos a dibujar
+    gestionarInterfazEspecial();
+    renderizar();
+}
     function gestionarInterfazEspecial() {
         const esEspecial = document.getElementById('medida-foto').value === 'especial';
         document.getElementById('contenedor-contador').style.display = esEspecial ? 'flex' : 'none';
@@ -735,7 +996,30 @@ ventanaImpresion.document.write(`<html><head><style>
         renderizar();
     }
 
-    function renderizar() {
+function obtenerFiltrosConfigurados() {
+    let cadenaFiltros = "";
+
+    // Filtros originales
+    if (document.getElementById('optimizador')?.checked) {
+        cadenaFiltros += "brightness(1.15) contrast(1.1) saturate(1.05) ";
+    }
+    if (document.getElementById('modo-calido')?.checked) {
+        cadenaFiltros += "sepia(0.4) brightness(1.05) ";
+    }
+    if (document.getElementById('modo-negativo')?.checked) {
+        cadenaFiltros += "grayscale(1) invert(1) ";
+    }
+
+    if (document.getElementById('check-efecto-vintage')?.checked) {
+    // Solo llamamos al filtro SVG, sin añadir filtros CSS extra
+    cadenaFiltros += "url(#magno-pure-svg) ";
+}
+return cadenaFiltros.trim() || "none";
+}
+
+
+function renderizar() {
+        const modoPolActivo = document.getElementById('check-modo-polaroid')?.checked;
         const hojaKey = document.getElementById('tipo-hoja').value;
         const medVal = document.getElementById('medida-foto').value;
         const hDim = HOJAS[hojaKey];
@@ -758,74 +1042,255 @@ ventanaImpresion.document.write(`<html><head><style>
         dibujarFotos(config);
     }
 
-    function dibujarFotos(conf) {
-        if(!imagenes.length) return;
-        const porHoja = conf.c * conf.r;
-        document.getElementById('p-tot').textContent = conf.carnet ? 1 : Math.ceil(imagenes.length / porHoja);
-        document.getElementById('p-act').textContent = pagIdx + 1;
+const COORDENADAS_POLAROID = {
+    'A4': {
+        anchoPapelMM: 210,
+        posiciones: [
+            [21.5, 46], [109.5, 46],
+            [21.5, 153], [109.5, 153]
+        ],
+        marcasCorte: [
+            // HORIZONTALES (x, y, tipo)
+            { x: 0, y: 41.5, dir: 'h' }, { x: 0, y: 148.5, dir: 'h' }, { x: 0, y: 255.5, dir: 'h' },
+            { x: 195, y: 41.5, dir: 'h' }, { x: 195, y: 148.5, dir: 'h' }, { x: 195, y: 255.5, dir: 'h' },
+            // VERTICALES
+            { x: 17, y: 24.1, dir: 'v' }, { x: 105, y: 24.1, dir: 'v' }, { x: 193, y: 24.1, dir: 'v' },
+            { x: 17, y: 257.2, dir: 'v' }, { x: 105, y: 257.2, dir: 'v' }, { x: 193, y: 257.2, dir: 'v' }
+        ]
+    },
+'A3': {
+        anchoPapelMM: 297,
+        posiciones: [
+            [21, 54],  [109, 54],  [197, 54],
+            [21, 161], [109, 161], [197, 161],
+            [21, 268], [109, 268], [197, 268]
+        ],
+        marcasCorte: [
+            // HORIZONTALES A3 (x, y)
+            { x: 0, y: 49.5, dir: 'h' }, { x: 0, y: 156.5, dir: 'h' }, 
+            { x: 0, y: 263.5, dir: 'h' }, { x: 0, y: 370.5, dir: 'h' },
+            { x: 282, y: 49.5, dir: 'h' }, { x: 282, y: 156.5, dir: 'h' }, 
+            { x: 282, y: 263.5, dir: 'h' }, { x: 282, y: 370.5, dir: 'h' },
+            
+            // VERTICALES A3 (x, y)
+            { x: 16.7, y: 33, dir: 'v' }, { x: 104.7, y: 33, dir: 'v' }, 
+            { x: 192.7, y: 33, dir: 'v' }, { x: 280.5, y: 33, dir: 'v' },
+            { x: 16.7, y: 374, dir: 'v' }, { x: 104.7, y: 374, dir: 'v' }, 
+            { x: 192.7, y: 374, dir: 'v' }, { x: 280.5, y: 374, dir: 'v' }
+        ]
+    }
+};
 
-        let filtros = "";
-        if (document.getElementById('optimizador').checked) filtros += "brightness(1.15) contrast(1.1) saturate(1.05) ";
-        if (document.getElementById('modo-calido').checked) filtros += "sepia(0.4) brightness(1.05) ";
-        if (document.getElementById('modo-negativo').checked) filtros += "grayscale(1) invert(1) ";
+function ejecutarFlujoPolaroid(conf) {
+    if (!imagenes || imagenes.length === 0) return;
 
-        const mE = (conf.mE || 0) * F, mI = (conf.mI || 0.5) * F;
-        const wPx = conf.w * F, hPx = conf.h * F;
-        let startX = conf.mE ? mE : (canvas.width - (conf.c * wPx + (conf.c - 1) * mI)) / 2;
-        let startY = conf.mE ? mE : (canvas.height - (conf.r * hPx + (conf.r - 1) * mI)) / 2;
-
-        for(let i=0; i < porHoja; i++) {
-            let img = conf.carnet ? imagenes[0] : imagenes[(pagIdx * porHoja) + i];
-            if(!img) break;
-            const col = i % conf.c, fila = Math.floor(i / conf.c);
-            const x = startX + col * (wPx + mI), y = startY + fila * (hPx + mI);
-            ctx.save();
-            ctx.filter = filtros || "none";
-            ctx.beginPath(); ctx.rect(x, y, wPx, hPx); ctx.clip();
-            let dW = img.width, dH = img.height, rot = 0;
-            if((img.width > img.height) !== (wPx > hPx)) { rot = 90; dW = img.height; dH = img.width; }
-            let ratio = document.getElementById('rellenar').checked ? Math.max(wPx/dW, hPx/dH) : Math.min(wPx/dW, hPx/dH);
-            ctx.translate(x + wPx/2, y + hPx/2); if(rot) ctx.rotate(Math.PI/2);
-            ctx.drawImage(img, -(img.width*ratio)/2, -(img.height*ratio)/2, img.width*ratio, img.height*ratio);
-            ctx.restore(); // Aquí termina el recorte de la imagen
-
-            // LÍNEAS DE CORTE MEJORADAS
-            if (document.getElementById('lineas-corte').checked) {
-                ctx.save(); // Guardamos estado limpio
-                ctx.filter = "none"; // Quitamos filtros para que la línea no salga con brillo/contraste
-                ctx.strokeStyle = "#888888"; // Un gris más oscuro y visible
-                ctx.lineWidth = 2; // Un poquito más gruesa
-                ctx.setLineDash([10, 10]); // Línea punteada para que no parezca parte de la foto
-                ctx.strokeRect(x, y, wPx, hPx);
-                ctx.restore();
-            }    }
+    // --- EL BLOQUEO ---
+    const checkCorte = document.getElementById('lineas-corte');
+    if (checkCorte) {
+        checkCorte.checked = true;   // Se marca solo
+        checkCorte.disabled = true;  // Se pone gris (bloqueado)
     }
 
-    document.getElementById('fotos-input').onchange = (e) => {
-        const archivos = Array.from(e.target.files);
-        imagenes = []; let counts = 0;
-        archivos.forEach(f => {
-            const r = new FileReader();
-            r.onload = (ev) => {
-                const img = new Image();
-                img.onload = () => { imagenes.push(img); counts++; if(counts === archivos.length) { pagIdx = 0; renderizar(); } };
-                img.src = ev.target.result;
-            };
-            r.readAsDataURL(f);
-        });
-    };
+    const tipoHoja = document.getElementById('tipo-hoja').value;
+    const configActual = COORDENADAS_POLAROID[tipoHoja] || COORDENADAS_POLAROID['A4'];
+    const miF = canvas.width / configActual.anchoPapelMM; 
+    const sizePx = 79 * miF; 
 
-    async function descargar() {
-        const total = parseInt(document.getElementById('p-tot').textContent);
-        for(let i=0; i<total; i++) {
-            pagIdx = i; renderizar();
-            const a = document.createElement('a');
-            a.download = `MAGNO_P${i+1}.jpg`;
-            a.href = canvas.toDataURL("image/jpeg", 0.92);
-            a.click();
-            await new Promise(res => setTimeout(res, 800));
+    // Dibujo de marcas (siempre activas en este modo)
+    if (configActual.marcasCorte) {
+        ctx.save();
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        const largoMarca = 15 * miF; 
+        configActual.marcasCorte.forEach(m => {
+            ctx.beginPath();
+            ctx.moveTo(m.x * miF, m.y * miF);
+            if (m.dir === 'h') ctx.lineTo((m.x * miF) + largoMarca, m.y * miF);
+            else ctx.lineTo(m.x * miF, (m.y * miF) + largoMarca);
+            ctx.stroke();
+        });
+        ctx.restore();
+    }
+
+    const copias = parseInt(document.getElementById('input-repetir').value) || 1;
+    let imagenesFinales = [];
+    imagenes.forEach(img => { for (let i = 0; i < copias; i++) imagenesFinales.push(img); });
+    
+    const posiciones = configActual.posiciones;
+    const porHoja = posiciones.length;
+    const totalPaginas = Math.ceil(imagenesFinales.length / porHoja);
+    
+    document.getElementById('p-tot').textContent = totalPaginas;
+    if (pagIdx >= totalPaginas) pagIdx = Math.max(0, totalPaginas - 1);
+    document.getElementById('p-act').textContent = pagIdx + 1;
+for (let i = 0; i < porHoja; i++) {
+        let img = imagenesFinales[(pagIdx * porHoja) + i];
+        if (!img) break;
+        
+        const posX = posiciones[i][0] * miF;
+        const posY = posiciones[i][1] * miF;
+        
+        ctx.save();
+
+        // 1. LLAMAMOS A LA FUNCIÓN CENTRAL
+        // Esta variable ya trae el Optimizador, el Cálido y el Vintage juntos
+        const filtrosFinales = obtenerFiltrosConfigurados();
+        
+        // 2. APLICAMOS EL FILTRO AL CANVAS
+        ctx.filter = filtrosFinales;
+
+        // 3. HACEMOS EL RECORTE (Solo una vez)
+        ctx.beginPath(); 
+        ctx.rect(posX, posY, sizePx, sizePx); 
+        ctx.clip();
+
+        // 4. CALCULAMOS EL TAMAÑO
+        let ratio = Math.max(sizePx / img.width, sizePx / img.height);
+        let dW = img.width * ratio; 
+        let dH = img.height * ratio;
+        
+        // 5. DIBUJAMOS (Aquí se aplica el filtro automáticamente)
+        ctx.drawImage(img, posX + (sizePx - dW) / 2, posY + (sizePx - dH) / 2, dW, dH);
+        
+        ctx.restore(); // Limpia filtro y clip para la foto que sigue
+    }
+}
+
+function dibujarFotos(conf) {
+    if(!imagenes.length) return;
+
+    // USAR EL ID CORRECTO: check-modo-polaroid
+    const modoPolaroidActivo = document.getElementById('check-modo-polaroid')?.checked;
+    const checkCorte = document.getElementById('lineas-corte');
+    
+    if (modoPolaroidActivo) {
+        ejecutarFlujoPolaroid(conf); 
+        return; 
+    } else {
+        if (checkCorte) checkCorte.disabled = false;
+    }
+    // --- LÓGICA NORMAL (Exactamente la que ya tenías) ---
+    // 1. Obtener copias desde el nuevo input
+    const inputRepetir = document.getElementById('input-repetir');
+    const copias = inputRepetir ? (parseInt(inputRepetir.value) || 1) : 1;
+    
+    // 2. Crear lista con las repeticiones
+    let imagenesFinales = [];
+    imagenes.forEach(img => {
+        for (let i = 0; i < copias; i++) {
+            imagenesFinales.push(img);
+        }
+    });
+
+    const porHoja = conf.c * conf.r;
+    
+    // 3. Actualizar contadores de página con la lista nueva
+    const totalPaginas = conf.carnet ? 1 : Math.ceil(imagenesFinales.length / porHoja);
+    document.getElementById('p-tot').textContent = totalPaginas;
+    
+    if (pagIdx >= totalPaginas) pagIdx = Math.max(0, totalPaginas - 1);
+    document.getElementById('p-act').textContent = pagIdx + 1;
+
+// En lugar de ctx.filter solo, definimos la variable 'filtros'
+const filtros = obtenerFiltrosConfigurados();
+
+
+    const mE = (conf.mE || 0) * F, mI = (conf.mI || 0.5) * F;
+    const wPx = conf.w * F, hPx = conf.h * F;
+    let startX = conf.mE ? mE : (canvas.width - (conf.c * wPx + (conf.c - 1) * mI)) / 2;
+    let startY = conf.mE ? mE : (canvas.height - (conf.r * hPx + (conf.r - 1) * mI)) / 2;
+
+    // 5. Dibujo final
+    for(let i=0; i < porHoja; i++) {
+        let img = conf.carnet ? imagenesFinales[0] : imagenesFinales[(pagIdx * porHoja) + i];
+        if(!img) break;
+
+        const col = i % conf.c, fila = Math.floor(i / conf.c);
+        const x = startX + col * (wPx + mI), y = startY + fila * (hPx + mI);
+        
+        ctx.save();
+        ctx.filter = filtros || "none";
+        ctx.beginPath(); ctx.rect(x, y, wPx, hPx); ctx.clip();
+        
+        let dW = img.width, dH = img.height, rot = 0;
+        if((img.width > img.height) !== (wPx > hPx)) { rot = 90; dW = img.height; dH = img.width; }
+        
+        let ratio = document.getElementById('rellenar').checked ? Math.max(wPx/dW, hPx/dH) : Math.min(wPx/dW, hPx/dH);
+        ctx.translate(x + wPx/2, y + hPx/2); if(rot) ctx.rotate(Math.PI/2);
+        ctx.drawImage(img, -(img.width*ratio)/2, -(img.height*ratio)/2, img.width*ratio, img.height*ratio);
+        ctx.restore();
+
+        if (document.getElementById('lineas-corte').checked) {
+            ctx.save();
+            ctx.filter = "none";
+            ctx.strokeStyle = "#888888";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 10]);
+            ctx.strokeRect(x, y, wPx, hPx);
+            ctx.restore();
         }
     }
+}
+
+document.getElementById('fotos-input').onchange = (e) => {
+    const archivos = Array.from(e.target.files);
+    imagenes = []; 
+    let counts = 0;
+    
+    archivos.forEach(f => {
+        const r = new FileReader();
+        r.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => { 
+                // GUARDAMOS EL NOMBRE ORIGINAL AQUÍ
+                img.nombreOriginal = f.name.split('.').slice(0, -1).join('.'); 
+                imagenes.push(img); 
+                counts++; 
+                if(counts === archivos.length) { 
+                    pagIdx = 0; 
+                    renderizar(); 
+                } 
+            };
+            img.src = ev.target.result;
+        };
+        r.readAsDataURL(f);
+    });
+};
+
+    async function descargar() {
+    const total = parseInt(document.getElementById('p-tot').textContent);
+    
+    for(let i = 0; i < total; i++) {
+        pagIdx = i; 
+        renderizar();
+        
+        // Creamos un número de orden (01, 02, 03...)
+        const orden = (i + 1).toString().padStart(2, '0');
+        
+        // Buscamos la primera imagen de esta página para extraer su nombre original
+        // (Si es una medida especial con varias fotos, usará el nombre de la primera de la página)
+        const medVal = document.getElementById('medida-foto').value;
+        const porHoja = (medVal === 'especial') ? 
+            parseInt(document.getElementById('cant-especial').value) : 
+            (MEDIDAS_PREDEFINIDAS[document.getElementById('tipo-hoja').value][medVal].c * MEDIDAS_PREDEFINIDAS[document.getElementById('tipo-hoja').value][medVal].r);
+        
+// Buscá esta línea y reemplazala:
+const copias = parseInt(document.getElementById('input-repetir').value) || 1;
+const imgReferencia = imagenes[Math.floor((i * porHoja) / copias)];
+        const nombreBase = imgReferencia && imgReferencia.nombreOriginal ? imgReferencia.nombreOriginal : "PAGINA";
+
+        const a = document.createElement('a');
+        
+        // NOMBRE FINAL: M_01_NombreOriginal.jpg
+        a.download = `M_${orden}_${nombreBase}.jpg`;
+        
+        a.href = canvas.toDataURL("image/jpeg", 0.92);
+        a.click();
+        
+        // Esperamos un poco más para que el navegador no se sature
+        await new Promise(res => setTimeout(res, 1000));
+    }
+}
 
     function pagAnt() { if(pagIdx > 0) { pagIdx--; renderizar(); } }
     function pagSig() { if(pagIdx < parseInt(document.getElementById('p-tot').textContent)-1) { pagIdx++; renderizar(); } }
@@ -909,46 +1374,29 @@ async function imprimirHojas() {
     // Detectamos el tamaño de hoja elegido (A4, A3, etc.)
     const tipoHoja = document.getElementById('tipo-hoja').value || 'A4';
 
-    let contenidoHtml = `
-        <html>
-            <head>
-                <title>Impresión Estudio Magno</title>
-                <style>
-                    @page { 
-                        size: ${tipoHoja}; 
-                        margin: 0; 
-                    }
-                    body { margin: 0; padding: 0; background: #fff; }
-                    img { 
-                        display: block; 
-                        width: 100vw; 
-                        height: 100vh; 
-                        object-fit: contain; 
-                        page-break-after: always; 
-                    }
-                </style>
-            </head>
-            <body>`;
+// --- ESTO ES LO QUE TENÉS QUE PEGAR DENTRO DE imprimirHojas ---
+    let contenidoHtml = '<html><head><title>Impresión</title><style>';
+    contenidoHtml += `@page { size: ${tipoHoja}; margin: 0; }`;
+    contenidoHtml += 'body { margin: 0; padding: 0; } img { display: block; width: 100vw; height: 100vh; object-fit: contain; page-break-after: always; }';
+    contenidoHtml += '</style></head><body>';
 
     listaImagenes.forEach(imgData => {
-        contenidoHtml += `<img src="${imgData}">`;
+        contenidoHtml += '<img src="' + imgData + '">';
     });
 
-    contenidoHtml += `
-            <script>
-                window.onload = () => {
-                    // Un pequeño retraso para asegurar que Electron vea las imágenes
-                    setTimeout(() => {
-                        window.print();
-                        window.close();
-                    }, 300);
-                };
-            ` + `<` + `/script>
-            </body>
-        </html>`;
+    // Esta parte es la que rompía el servidor. Ahora está escrita para que no falle:
+    const etiquetaApertura = '<' + 'script' + '>';
+    const etiquetaCierre = '<' + '/script' + '>';
+    
+    contenidoHtml += etiquetaApertura + 
+        'window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 500); };' + 
+        etiquetaCierre;
+
+    contenidoHtml += '</body></html>';
 
     ventanaImpresion.document.write(contenidoHtml);
     ventanaImpresion.document.close();
-}</script>
+} // <-- Esta es la llave que cierra la función imprimirHojas
+</script>
 </body>
 </html>
