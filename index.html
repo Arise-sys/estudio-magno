@@ -1155,11 +1155,29 @@ for (let i = 0; i < porHoja; i++) {
         ctx.restore(); // Limpia filtro y clip para la foto que sigue
     }
 }
+function pasoRepetir(delta) {
+    const input = document.getElementById('input-repetir');
+    if (!input) return;
 
-function dibujarFotos(conf) {
+    let valorActual = parseInt(input.value) || 1;
+    let nuevoValor = valorActual + delta;
+
+    // Límites lógicos para el negocio
+    if (nuevoValor < 1) nuevoValor = 1;
+    if (nuevoValor > 100) nuevoValor = 100;
+
+    input.value = nuevoValor;
+
+    // IMPORTANTE: Resetear el índice de página a 0 para evitar que el usuario 
+    // quede en una "página inexistente" si baja la cantidad de copias.
+    pagIdx = 0; 
+
+    if (typeof renderizar === "function") {
+        renderizar();
+    }
+}function dibujarFotos(conf) {
     if(!imagenes.length) return;
 
-    // USAR EL ID CORRECTO: check-modo-polaroid
     const modoPolaroidActivo = document.getElementById('check-modo-polaroid')?.checked;
     const checkCorte = document.getElementById('lineas-corte');
     
@@ -1169,12 +1187,11 @@ function dibujarFotos(conf) {
     } else {
         if (checkCorte) checkCorte.disabled = false;
     }
-    // --- LÓGICA NORMAL (Exactamente la que ya tenías) ---
-    // 1. Obtener copias desde el nuevo input
+
+    // --- LÓGICA DE REPETICIÓN UNIFICADA ---
     const inputRepetir = document.getElementById('input-repetir');
     const copias = inputRepetir ? (parseInt(inputRepetir.value) || 1) : 1;
     
-    // 2. Crear lista con las repeticiones
     let imagenesFinales = [];
     imagenes.forEach(img => {
         for (let i = 0; i < copias; i++) {
@@ -1182,8 +1199,7 @@ function dibujarFotos(conf) {
         }
     });
 
-    const porHoja = conf.c * conf.r;
-    
+    const porHoja = conf.c * conf.r;    
     // 3. Actualizar contadores de página con la lista nueva
     const totalPaginas = conf.carnet ? 1 : Math.ceil(imagenesFinales.length / porHoja);
     document.getElementById('p-tot').textContent = totalPaginas;
