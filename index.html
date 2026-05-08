@@ -516,6 +516,7 @@ body.tema-negativo #nombre-cliente {
 <label class="opcion-check"><input type="checkbox" id="modo-calido" onchange="renderizar()"> 🔥 MODO CÁLIDO</label>
 <label class="opcion-check"><input type="checkbox" id="modo-negativo" onchange="renderizar()"> 🌓 MODO INVERTIDO (AHORRO)</label>
 
+<div id="controles-ajuste-polaroid" style="margin-top: 20px;"></div>
 
 </div>
 <div class="columna-previsualizacion">
@@ -899,7 +900,8 @@ function imprimirTicket() {
     tCtx.fillText(`ANILLADO: ${textoAnillado}`, 40, 280);
     tCtx.fillText("----------------------------------", 40, 320);
     tCtx.font = "bold 44px   monospace"; 
-    tCtx.fillText(`TOTAL: $${total}`, 40, 360);
+    tCtx.fillText(`TOTAL:`, 40, 360);
+    tCtx.fillText(`$${total}`, 40, 360);
     tCtx.font = "12px   monospace";
     tCtx.fillText("==================================", 40, 450);
     tCtx.textAlign = "center";
@@ -937,7 +939,7 @@ ventanaImpresion.document.write(`<html><head><style>
     let imagenes = [], pagIdx = 0;
     const canvas = document.getElementById('canvas-preview'), ctx = canvas.getContext('2d');
 
-    function cambiarTab(id, btn) {
+function cambiarTab(id, btn) {
         document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`seccion-${id}`).classList.add('active');
@@ -979,13 +981,13 @@ function cambiarConfig() {
     gestionarInterfazEspecial();
     renderizar();
 }
-    function gestionarInterfazEspecial() {
+function gestionarInterfazEspecial() {
         const esEspecial = document.getElementById('medida-foto').value === 'especial';
         document.getElementById('contenedor-contador').style.display = esEspecial ? 'flex' : 'none';
         renderizar();
     }
 
-    function pasoContador(delta) {
+function pasoContador(delta) {
         const input = document.getElementById('cant-especial');
         let v = parseInt(input.value);
         let next = v + delta;
@@ -1040,7 +1042,11 @@ function renderizar() {
             config = MEDIDAS_PREDEFINIDAS[hojaKey][medVal];
         }
         dibujarFotos(config);
-    }
+        // Al final de renderizar()
+if (arguments[0] !== true) { 
+    actualizarSlidersPolaroid(); 
+}
+}
 
 const COORDENADAS_POLAROID = {
     'A4': {
@@ -1050,15 +1056,13 @@ const COORDENADAS_POLAROID = {
             [21.5, 153], [109.5, 153]
         ],
         marcasCorte: [
-            // HORIZONTALES (x, y, tipo)
-            { x: 0, y: 41.5, dir: 'h' }, { x: 0, y: 148.5, dir: 'h' }, { x: 0, y: 255.5, dir: 'h' },
-            { x: 195, y: 41.5, dir: 'h' }, { x: 195, y: 148.5, dir: 'h' }, { x: 195, y: 255.5, dir: 'h' },
-            // VERTICALES
-            { x: 17, y: 24.1, dir: 'v' }, { x: 105, y: 24.1, dir: 'v' }, { x: 193, y: 24.1, dir: 'v' },
-            { x: 17, y: 257.2, dir: 'v' }, { x: 105, y: 257.2, dir: 'v' }, { x: 193, y: 257.2, dir: 'v' }
+            // HORIZONTALES (Solo la altura 'y' importa ahora)
+            { y: 41.5, dir: 'h' }, { y: 148.5, dir: 'h' }, { y: 255.5, dir: 'h' },
+            // VERTICALES (Solo la posición 'x' importa ahora)
+            { x: 17, dir: 'v' }, { x: 105, dir: 'v' }, { x: 193, dir: 'v' }
         ]
     },
-'A3': {
+    'A3': {
         anchoPapelMM: 297,
         posiciones: [
             [21, 54],  [109, 54],  [197, 54],
@@ -1066,21 +1070,15 @@ const COORDENADAS_POLAROID = {
             [21, 268], [109, 268], [197, 268]
         ],
         marcasCorte: [
-            // HORIZONTALES A3 (x, y)
-            { x: 0, y: 49.5, dir: 'h' }, { x: 0, y: 156.5, dir: 'h' }, 
-            { x: 0, y: 263.5, dir: 'h' }, { x: 0, y: 370.5, dir: 'h' },
-            { x: 282, y: 49.5, dir: 'h' }, { x: 282, y: 156.5, dir: 'h' }, 
-            { x: 282, y: 263.5, dir: 'h' }, { x: 282, y: 370.5, dir: 'h' },
-            
-            // VERTICALES A3 (x, y)
-            { x: 16.7, y: 33, dir: 'v' }, { x: 104.7, y: 33, dir: 'v' }, 
-            { x: 192.7, y: 33, dir: 'v' }, { x: 280.5, y: 33, dir: 'v' },
-            { x: 16.7, y: 374, dir: 'v' }, { x: 104.7, y: 374, dir: 'v' }, 
-            { x: 192.7, y: 374, dir: 'v' }, { x: 280.5, y: 374, dir: 'v' }
+            // HORIZONTALES A3
+            { y: 49.5, dir: 'h' }, { y: 156.5, dir: 'h' }, 
+            { y: 263.5, dir: 'h' }, { y: 370.5, dir: 'h' },
+            // VERTICALES A3
+            { x: 16.7, dir: 'v' }, { x: 104.7, dir: 'v' }, 
+            { x: 192.7, dir: 'v' }, { x: 280.5, dir: 'v' }
         ]
     }
 };
-
 function ejecutarFlujoPolaroid(conf) {
     if (!imagenes || imagenes.length === 0) return;
 
@@ -1096,22 +1094,28 @@ function ejecutarFlujoPolaroid(conf) {
     const miF = canvas.width / configActual.anchoPapelMM; 
     const sizePx = 79 * miF; 
 
-    // Dibujo de marcas (siempre activas en este modo)
+// Dibujo de marcas (Líneas infinitas de borde a borde)
     if (configActual.marcasCorte) {
         ctx.save();
-        ctx.strokeStyle = "black";
+        // Usamos un gris suave para que ayude al corte sin ensuciar la pieza
+        ctx.strokeStyle = "rgba(180, 180, 180, 0.7)"; 
         ctx.lineWidth = 1;
-        const largoMarca = 15 * miF; 
+        
         configActual.marcasCorte.forEach(m => {
             ctx.beginPath();
-            ctx.moveTo(m.x * miF, m.y * miF);
-            if (m.dir === 'h') ctx.lineTo((m.x * miF) + largoMarca, m.y * miF);
-            else ctx.lineTo(m.x * miF, (m.y * miF) + largoMarca);
+            if (m.dir === 'h') {
+                // Línea horizontal: de izquierda (0) a derecha (canvas.width)
+                ctx.moveTo(0, m.y * miF); 
+                ctx.lineTo(canvas.width, m.y * miF);
+            } else {
+                // Línea vertical: de arriba (0) a abajo (canvas.height)
+                ctx.moveTo(m.x * miF, 0);
+                ctx.lineTo(m.x * miF, canvas.height);
+            }
             ctx.stroke();
         });
         ctx.restore();
     }
-
     const copias = parseInt(document.getElementById('input-repetir').value) || 1;
     let imagenesFinales = [];
     imagenes.forEach(img => { for (let i = 0; i < copias; i++) imagenesFinales.push(img); });
@@ -1123,7 +1127,7 @@ function ejecutarFlujoPolaroid(conf) {
     document.getElementById('p-tot').textContent = totalPaginas;
     if (pagIdx >= totalPaginas) pagIdx = Math.max(0, totalPaginas - 1);
     document.getElementById('p-act').textContent = pagIdx + 1;
-for (let i = 0; i < porHoja; i++) {
+    for (let i = 0; i < porHoja; i++) {
         let img = imagenesFinales[(pagIdx * porHoja) + i];
         if (!img) break;
         
@@ -1144,14 +1148,29 @@ for (let i = 0; i < porHoja; i++) {
         ctx.rect(posX, posY, sizePx, sizePx); 
         ctx.clip();
 
-        // 4. CALCULAMOS EL TAMAÑO
+// 4. CALCULAMOS EL TAMAÑO
         let ratio = Math.max(sizePx / img.width, sizePx / img.height);
         let dW = img.width * ratio; 
         let dH = img.height * ratio;
-        
-        // 5. DIBUJAMOS (Aquí se aplica el filtro automáticamente)
-        ctx.drawImage(img, posX + (sizePx - dW) / 2, posY + (sizePx - dH) / 2, dW, dH);
-        
+
+        // --- AQUÍ EMPIEZA LO NUEVO ---
+        let offX = 0;
+        let offY = 0;
+
+        // Si la foto es más ancha que el cuadro, calculamos el movimiento lateral
+        if (dW > sizePx) {
+            let maxScrollX = (dW - sizePx) / 2;
+            offX = (img.offset || 0) * maxScrollX;
+        } 
+        // Si la foto es más alta que el cuadro, calculamos el movimiento vertical
+        else if (dH > sizePx) {
+            let maxScrollY = (dH - sizePx) / 2;
+            offY = (img.offset || 0) * maxScrollY;
+        }
+        // --- AQUÍ TERMINA LO NUEVO ---
+
+        // 5. DIBUJAMOS (Sumamos offX y offY a la posición)
+        ctx.drawImage(img, posX + (sizePx - dW) / 2 + offX, posY + (sizePx - dH) / 2 + offY, dW, dH);        
         ctx.restore(); // Limpia filtro y clip para la foto que sigue
     }
 }
@@ -1175,7 +1194,22 @@ function pasoRepetir(delta) {
     if (typeof renderizar === "function") {
         renderizar();
     }
-}function dibujarFotos(conf) {
+}
+const MARCAS_ESTANDAR_FIJAS = {
+    "13x18": [
+        { y: 16, dir: 'h' }, { y: 146, dir: 'h' }, { y: 151, dir: 'h' }, { y: 281, dir: 'h' },
+        { x: 15, dir: 'v' }, { x: 195, dir: 'v' }
+    ],
+    "10x15": [
+        { y: 38.5, dir: 'h' }, { y: 138.5, dir: 'h' }, { y: 158.5, dir: 'h' }, { y: 258.5, dir: 'h' },
+        { x: 30, dir: 'v' }, { x: 180, dir: 'v' }
+    ],
+    "9x13": [
+        { y: 16, dir: 'h' }, { y: 146, dir: 'h' }, { y: 151, dir: 'h' }, { y: 281, dir: 'h' },
+        { x: 12.6, dir: 'v' }, { x: 102.6, dir: 'v' }, { x: 107.6, dir: 'v' }, { x: 197.6, dir: 'v' }
+    ]
+};
+function dibujarFotos(conf) {
     if(!imagenes.length) return;
 
     const modoPolaroidActivo = document.getElementById('check-modo-polaroid')?.checked;
@@ -1184,41 +1218,65 @@ function pasoRepetir(delta) {
     if (modoPolaroidActivo) {
         ejecutarFlujoPolaroid(conf); 
         return; 
-    } else {
-        if (checkCorte) checkCorte.disabled = false;
     }
 
-    // --- LÓGICA DE REPETICIÓN UNIFICADA ---
+    // --- CÁLCULO MATEMÁTICO DE ESCALA (IGUAL QUE POLAROID) ---
+    const tipoHoja = document.getElementById('tipo-hoja').value;
+    // Buscamos el ancho real en mm de la hoja actual para que la escala sea perfecta
+    const anchoPapelMM = (tipoHoja === 'A3') ? 297 : (tipoHoja === 'LEGAL') ? 215.9 : 210;
+    const miF = canvas.width / anchoPapelMM;
+
+    // 1. DIBUJO DE MARCAS DE CORTE DE PRECISIÓN (ANTES QUE LAS FOTOS)
+    if (checkCorte && checkCorte.checked) {
+        let nombreMedida = conf.n || "";
+        let claveMatch = Object.keys(MARCAS_ESTANDAR_FIJAS).find(k => nombreMedida.includes(k));
+
+        if (claveMatch) {
+            ctx.save();
+            ctx.strokeStyle = "rgba(180, 180, 180, 0.7)"; 
+            ctx.lineWidth = 1;
+            
+            MARCAS_ESTANDAR_FIJAS[claveMatch].forEach(m => {
+                ctx.beginPath();
+                if (m.dir === 'h') {
+                    ctx.moveTo(0, m.y * miF); 
+                    ctx.lineTo(canvas.width, m.y * miF);
+                } else {
+                    ctx.moveTo(m.x * miF, 0);
+                    ctx.lineTo(m.x * miF, canvas.height);
+                }
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+    }
+
+    // --- 2. LÓGICA DE IMÁGENES ---
     const inputRepetir = document.getElementById('input-repetir');
     const copias = inputRepetir ? (parseInt(inputRepetir.value) || 1) : 1;
-    
     let imagenesFinales = [];
-    imagenes.forEach(img => {
-        for (let i = 0; i < copias; i++) {
-            imagenesFinales.push(img);
-        }
-    });
+    imagenes.forEach(img => { for (let i = 0; i < copias; i++) imagenesFinales.push(img); });
 
     const porHoja = conf.c * conf.r;    
-    // 3. Actualizar contadores de página con la lista nueva
-    const totalPaginas = conf.carnet ? 1 : Math.ceil(imagenesFinales.length / porHoja);
+    const totalPaginas = Math.ceil(imagenesFinales.length / porHoja);
     document.getElementById('p-tot').textContent = totalPaginas;
-    
     if (pagIdx >= totalPaginas) pagIdx = Math.max(0, totalPaginas - 1);
     document.getElementById('p-act').textContent = pagIdx + 1;
 
-// En lugar de ctx.filter solo, definimos la variable 'filtros'
-const filtros = obtenerFiltrosConfigurados();
+    // Dibujo de las fotos usando la misma escala miF
+    const filtros = obtenerFiltrosConfigurados();
+    const wPx = conf.w * miF * 10; // Multiplicamos por 10 porque conf.w está en cm y miF en mm
+    const hPx = conf.h * miF * 10;
+    const mI = (conf.mI || 0.5) * miF * 10;
+    const mE = (conf.mE || 0) * miF * 10;
 
+    let startX = (canvas.width - (conf.c * wPx + (conf.c - 1) * mI)) / 2;
+    let startY = (canvas.height - (conf.r * hPx + (conf.r - 1) * mI)) / 2;
+    // Si la configuración tiene margen específico (como A6), lo usamos
+    if(conf.mE !== undefined) { startX = mE; startY = mE; }
 
-    const mE = (conf.mE || 0) * F, mI = (conf.mI || 0.5) * F;
-    const wPx = conf.w * F, hPx = conf.h * F;
-    let startX = conf.mE ? mE : (canvas.width - (conf.c * wPx + (conf.c - 1) * mI)) / 2;
-    let startY = conf.mE ? mE : (canvas.height - (conf.r * hPx + (conf.r - 1) * mI)) / 2;
-
-    // 5. Dibujo final
     for(let i=0; i < porHoja; i++) {
-        let img = conf.carnet ? imagenesFinales[0] : imagenesFinales[(pagIdx * porHoja) + i];
+        let img = imagenesFinales[(pagIdx * porHoja) + i];
         if(!img) break;
 
         const col = i % conf.c, fila = Math.floor(i / conf.c);
@@ -1235,19 +1293,8 @@ const filtros = obtenerFiltrosConfigurados();
         ctx.translate(x + wPx/2, y + hPx/2); if(rot) ctx.rotate(Math.PI/2);
         ctx.drawImage(img, -(img.width*ratio)/2, -(img.height*ratio)/2, img.width*ratio, img.height*ratio);
         ctx.restore();
-
-        if (document.getElementById('lineas-corte').checked) {
-            ctx.save();
-            ctx.filter = "none";
-            ctx.strokeStyle = "#888888";
-            ctx.lineWidth = 2;
-            ctx.setLineDash([10, 10]);
-            ctx.strokeRect(x, y, wPx, hPx);
-            ctx.restore();
-        }
     }
 }
-
 document.getElementById('fotos-input').onchange = (e) => {
     const archivos = Array.from(e.target.files);
     imagenes = []; 
@@ -1260,6 +1307,7 @@ document.getElementById('fotos-input').onchange = (e) => {
             img.onload = () => { 
                 // GUARDAMOS EL NOMBRE ORIGINAL AQUÍ
                 img.nombreOriginal = f.name.split('.').slice(0, -1).join('.'); 
+                img.offset = 0;
                 imagenes.push(img); 
                 counts++; 
                 if(counts === archivos.length) { 
@@ -1290,9 +1338,9 @@ document.getElementById('fotos-input').onchange = (e) => {
             parseInt(document.getElementById('cant-especial').value) : 
             (MEDIDAS_PREDEFINIDAS[document.getElementById('tipo-hoja').value][medVal].c * MEDIDAS_PREDEFINIDAS[document.getElementById('tipo-hoja').value][medVal].r);
         
-// Buscá esta línea y reemplazala:
-const copias = parseInt(document.getElementById('input-repetir').value) || 1;
-const imgReferencia = imagenes[Math.floor((i * porHoja) / copias)];
+    // Buscá esta línea y reemplazala:
+    const copias = parseInt(document.getElementById('input-repetir').value) || 1;
+    const imgReferencia = imagenes[Math.floor((i * porHoja) / copias)];
         const nombreBase = imgReferencia && imgReferencia.nombreOriginal ? imgReferencia.nombreOriginal : "PAGINA";
 
         const a = document.createElement('a');
@@ -1413,6 +1461,62 @@ async function imprimirHojas() {
     ventanaImpresion.document.write(contenidoHtml);
     ventanaImpresion.document.close();
 } // <-- Esta es la llave que cierra la función imprimirHojas
+function actualizarSlidersPolaroid() {
+    const contenedor = document.getElementById('controles-ajuste-polaroid');
+    const modoPol = document.getElementById('check-modo-polaroid')?.checked;
+
+    // Si no es polaroid, limpiamos y nos vamos
+    if (!modoPol) {
+        contenedor.innerHTML = "";
+        return;
+    }
+
+    // Calculamos qué fotos hay en la página actual
+    const configActual = COORDENADAS_POLAROID[document.getElementById('tipo-hoja').value] || COORDENADAS_POLAROID['A4'];
+    const porHoja = configActual.posiciones.length;
+    const inicio = pagIdx * porHoja;
+    
+    // IMPORTANTE: Solo recreamos los sliders si cambiamos de página o de modo
+    // Usamos un "ID" único para saber si ya los dibujamos para esta página
+    const idPaginaActual = `pag-${pagIdx}-${imagenes.length}`;
+    if (contenedor.dataset.lastPage === idPaginaActual) {
+        return; // Ya están creados, no tocamos nada para que el mouse no pierda el foco
+    }
+    
+    contenedor.innerHTML = ""; // Solo limpiamos si realmente vamos a crear nuevos
+    contenedor.dataset.lastPage = idPaginaActual;
+
+    const fotosPagina = imagenes.slice(inicio, inicio + porHoja);
+
+    fotosPagina.forEach((img, i) => {
+        const div = document.createElement('div');
+        div.style.cssText = "margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 5px; border: 1px solid #eee;";
+        
+        const label = document.createElement('div');
+        label.style.cssText = "font-size: 11px; margin-bottom: 5px; color: #666; font-weight: bold;";
+        label.innerText = `ENCUADRE FOTO ${i + 1}`;
+        div.appendChild(label);
+
+        const slider = document.createElement('input');
+        slider.type = "range";
+        slider.min = "-1";
+        slider.max = "1";
+        slider.step = "0.001"; // Mucha más precisión
+        slider.value = img.offset || 0;
+        slider.style.width = "100%";
+        slider.style.cursor = "pointer";
+
+        // Usamos 'input' para que el movimiento sea en tiempo real
+        slider.oninput = (e) => {
+            img.offset = parseFloat(e.target.value);
+            // Dibujamos el canvas, pero SIN recrear los sliders
+            renderizar(true); 
+        };
+
+        div.appendChild(slider);
+        contenedor.appendChild(div);
+    });
+}
 </script>
 </body>
 </html>
